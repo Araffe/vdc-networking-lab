@@ -1,0 +1,58 @@
+{
+     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+     "contentVersion": "1.0.0.0",
+     "parameters": {
+         "spokeVnetName": {
+            "defaultValue": "spokeVnet",
+            "type": "string",
+            "metadata": { "description": "Name of the spoke Vnet" }
+         },
+         "hubVnetName": {
+            "defaultValue": "hubVnet",
+            "type": "string",
+            "metadata": { "description": "Name of the hub Vnet" }
+         },
+         "useRemoteGateways": {
+             "defaultValue": true,
+             "type":"bool",
+             "allowedValues": [
+                 true, false
+             ],
+             "metadata": { "description": "Required to cope for peerings without VPN gateway" }
+         }
+     },
+          "variables": {
+     },
+      "resources": [
+         {
+            "apiVersion": "2016-06-01",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "name": "[concat(parameters('hubVnetName'), '-to-', parameters('spokeVnetName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": "[parameters('useRemoteGateways')]",
+                    "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeVnetName'))]"       
+                }
+            }
+         },
+          {
+         "apiVersion": "2016-06-01",
+         "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+         "name": "[concat(parameters('spokeVnetName'), '-to-', parameters('hubVnetName'))]",
+         "location": "[resourceGroup().location]",
+         "properties": {
+            "allowVirtualNetworkAccess": true,
+            "allowForwardedTraffic": true,
+            "allowGatewayTransit": false,
+            "useRemoteGateways": "[parameters('useRemoteGateways')]",
+                "remoteVirtualNetwork": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"       
+                }
+            }
+         }
+     ]
+}
