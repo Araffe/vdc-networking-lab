@@ -12,7 +12,7 @@
             "type": "string",
             "metadata": { "description": "First octet of the spoke vnet IP space. Second octet depends on the VNet instance (1, 2, 3, etc)." }
         },
-        "vnetCount": {
+        "spokeVnetCount": {
             "defaultValue": 3,
             "type": "int",
             "metadata": { "description": "Number of spoke VNets that will be created"}
@@ -28,20 +28,20 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[concat(parameters('spokeVnetOctet1'), copyIndex(1), '.0.0/16')]",
+                        "[concat(parameters('spokeVnetOctet1'), copyIndex(1), '.0.0/16')]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), 'Subnet1')]",
+                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), '-Subnet1')]",
                         "properties": {
-                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1) '.0.0/24')]"
+                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1), '.1.0/24')]"
                         }
                     },
                     {
-                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), 'Subnet2')]",
+                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), '-Subnet2')]",
                         "properties": {
-                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1) '.1.0/24')]"
+                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1), '.2.0/24')]"
                         }
                     }
                 ]
@@ -49,7 +49,7 @@
             
             "copy": {
                 "name": "vnetCopy",
-                "count": "[parameters('vnetCount')]"
+                "count": "[parameters('spokeVnetCount')]"
             }
         },
             {
@@ -61,7 +61,7 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.101.0.0/16",
+                        "10.101.0.0/16"
                     ]
                 },
                 "subnets": [

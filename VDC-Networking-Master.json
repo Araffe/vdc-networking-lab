@@ -7,11 +7,6 @@
         "baseURL": "https://github.com/Araffe/vdc-networking-lab/blob/master/",
         "vmTemplateURL": "[concat(variables('baseURL'), 'VM.json')]",
         "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
-        "vnetParameters": {
-            "vnetCount": { "value": 5 },
-            "createGw": { "value": "no" },
-            "enableBgp": { "value": "true" },                       
-        },
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
         "vpnGWTemplateURL": "[concat(variables('baseURL'), 'vpnGW.json')]"
     },
@@ -32,7 +27,7 @@
 		},
         {
             "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet1",
-            "name": "hub2spoke1",
+            "name": "Hub-Spoke1-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
@@ -51,7 +46,7 @@
         },
         {
             "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet2",
-            "name": "hub2spoke1",
+            "name": "Hub-Spoke2-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
@@ -70,7 +65,7 @@
         },
         {
             "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet3",
-            "name": "hub2spoke1",
+            "name": "Hub-Spoke3-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
@@ -107,4 +102,5 @@
                 "publicIPAllocationMethod": "Dynamic"
             }
         }
+     ]
 }
