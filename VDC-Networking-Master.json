@@ -4,11 +4,9 @@
     "parameters": {
     },
     "variables": {
-        "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/blob/master/",
-        "vmTemplateURL": "[concat(variables('baseURL'), 'VM.json')]",
-        "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
+        "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/",
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
-        "vpnGWTemplateURL": "[concat(variables('baseURL'), 'vpnGW.json')]"
+        "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]"
     },
      "resources": [
 		{
@@ -26,58 +24,55 @@
 			}
 		},
         {
-            "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet1",
+            "comments": "create VNet peering - Hub_VNet1 to Spoke_VNet1",
             "name": "Hub-Spoke1-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
+					"uri": "[variables('vnetPeeringTemplateURL')]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
                     "hubVnetName": { "value": "Hub_VNet1" },    
-                    "spokeVnetName": { "value": "Spoke_VNet1" },
-                    "useRemoteGateways": { "value": "true" } 
+                    "spokeVnetName": { "value": "Spoke_VNet1" }
                 }
 			},
             "dependsOn": ["vnets"]
         },
         {
-            "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet2",
+            "comments": "create VNet peering - Hub_VNet1 to Spoke_VNet2",
             "name": "Hub-Spoke2-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
+					"uri": "[variables('vnetPeeringTemplateURL')]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
                     "hubVnetName": { "value": "Hub_VNet1" },    
-                    "spokeVnetName": { "value": "Spoke_VNet2" },
-                    "useRemoteGateways": { "value": "true" } 
+                    "spokeVnetName": { "value": "Spoke_VNet2" }
                 }
 			},
             "dependsOn": ["vnets"]
         },
         {
-            "comments": "create VNet peering - Hub_VNet1 <-> Spoke_VNet3",
+            "comments": "create VNet peering - Hub_VNet1 to Spoke_VNet3",
             "name": "Hub-Spoke3-Peering",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2016-06-01",
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(variables('baseURL'), 'vnetPeering.json')]",
+					"uri": "[variables('vnetPeeringTemplateURL')]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
                     "hubVnetName": { "value": "Hub_VNet1" },    
-                    "spokeVnetName": { "value": "Spoke_VNet3" },
-                    "useRemoteGateways": { "value": "true" } 
+                    "spokeVnetName": { "value": "Spoke_VNet3" }
                 }
 			},
             "dependsOn": ["vnets"]

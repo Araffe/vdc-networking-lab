@@ -26,7 +26,7 @@
       "resources": [
          {
             "apiVersion": "2016-06-01",
-            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "type": "virtualNetworkPeerings",
             "name": "[concat(parameters('hubVnetName'), '-to-', parameters('spokeVnetName'))]",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -41,7 +41,7 @@
          },
           {
          "apiVersion": "2016-06-01",
-         "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+         "type": "virtualNetworkPeerings",
          "name": "[concat(parameters('spokeVnetName'), '-to-', parameters('hubVnetName'))]",
          "location": "[resourceGroup().location]",
          "properties": {
