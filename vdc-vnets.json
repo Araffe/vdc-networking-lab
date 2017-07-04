@@ -1,0 +1,85 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "spokeVnetNamePrefix": {
+            "defaultValue": "Spoke_VNet",
+            "type": "string",
+            "metadata": { "description": "Spoke VNet name prefix." }
+        },
+        "spokeVnetOctet1": {
+            "defaultValue": "10.",
+            "type": "string",
+            "metadata": { "description": "First octet of the spoke vnet IP space. Second octet depends on the VNet instance (1, 2, 3, etc)." }
+        },
+        "vnetCount": {
+            "defaultValue": 3,
+            "type": "int",
+            "metadata": { "description": "Number of spoke VNets that will be created"}
+        },
+    },
+        "resources": [
+        {
+			"comments": "Spoke VNet with 2 subnets",
+			"name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1))]",
+            "type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[concat(parameters('spokeVnetOctet1'), copyIndex(1), '.0.0/16')]",
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), 'Subnet1')]",
+                        "properties": {
+                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1) '.0.0/24')]"
+                        }
+                    },
+                    {
+                        "name": "[concat(parameters('spokeVnetNamePrefix'), copyIndex(1), 'Subnet2')]",
+                        "properties": {
+                            "addressPrefix": "[concat(parameters('spokeVnetOctet1'), copyIndex(1) '.1.0/24')]"
+                        }
+                    }
+                ]
+            },
+            
+            "copy": {
+                "name": "vnetCopy",
+                "count": "[parameters('vnetCount')]"
+            }
+        },
+            {
+			"comments": "Hub VNet with 2 subnets",
+			"name": "Hub_Vnet1",
+            "type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.101.0.0/16",
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Hub_Vnet1-Subnet1",
+                        "properties": {
+                            "addressPrefix": "10.101.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "Hub_Vnet1-Subnet2",
+                        "properties": {
+                            "addressPrefix": "10.101.2.0/24"
+                        }
+                    }
+                ]
+            }
+        }
+            
+        ]
+}
