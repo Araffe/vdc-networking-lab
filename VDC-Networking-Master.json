@@ -4,7 +4,7 @@
     "parameters": {
     },
     "variables": {
-        "baseURL": "https://github.com/Araffe/vdc-networking-lab/blob/master/",
+        "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/blob/master/",
         "vmTemplateURL": "[concat(variables('baseURL'), 'VM.json')]",
         "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
@@ -33,7 +33,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(variables('baseURL'), 'vnetPeering.json')]",
+					"uri": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
@@ -52,7 +52,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(variables('baseURL'), 'vnetPeering.json')]",
+					"uri": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
