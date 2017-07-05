@@ -79,6 +79,34 @@
                     }
                 ]
             }
+        },
+        {
+			"comments": "On Premises VNet with 2 subnets",
+			"name": "OnPrem_Vnet1",
+            "type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.102.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "OnPrem_Vnet1-Subnet1",
+                        "properties": {
+                            "addressPrefix": "10.102.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "OnPrem_Vnet1-Subnet2",
+                        "properties": {
+                            "addressPrefix": "10.102.2.0/24"
+                        }
+                    }
+                ]
+            }
         }
             
         ]
