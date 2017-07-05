@@ -19,8 +19,7 @@
 				"templateLink": {
 					"uri": "[variables('vnetTemplateURL')]",
 					"contentVersion": "1.0.0.0"
-				},
-				"parameters":  "[variables('vnetParameters')]"
+				}
 			}
 		},
         {
@@ -81,7 +80,7 @@
             "comments": "Create public IP address for VNet GW in Hub_VNet1",
             "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "Hub_Vnet1-gwPip",
+            "name": "Hub_VNet1-gwPip",
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
@@ -91,7 +90,7 @@
             "comments": "Create public IP address for VNet GW in OnPrem_VNet",
             "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "OnPrem_Vnet-gwPip",
+            "name": "OnPrem_VNet-gwPip",
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
