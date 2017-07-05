@@ -76,6 +76,12 @@
                         "properties": {
                             "addressPrefix": "10.101.2.0/24"
                         }
+                    },
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.101.3.0/24"
+                        }
                     }
                 ]
             }
@@ -103,6 +109,12 @@
                         "name": "OnPrem_Vnet1-Subnet2",
                         "properties": {
                             "addressPrefix": "10.102.2.0/24"
+                        }
+                    },
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.102.3.0/24"
                         }
                     }
                 ]

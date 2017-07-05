@@ -6,7 +6,18 @@
     "variables": {
         "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/",
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
-        "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]"
+        "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
+        "vpnGwTemplateUri": "[concat(variables('baseURL'), 'vpn-gw.json')]",
+         "vpnGwTemplateHub": {
+                "vnetName": { "value": "Hub_VNet1" },
+                "gwName": { "value": "Hub_GW1" },
+                "PIPName": { "value": "Hub_VNet1-gwPip" }
+        },
+        "vpnGwTemplateOnPrem": {
+                "vnetName": { "value": "OnPrem_VNet1" },
+                "gwName": { "value": "OnPrem_GW1" },
+                "PIPName": { "value": "OnPrem_VNet-gwPip" }
+        }
     },
      "resources": [
 		{
@@ -95,6 +106,42 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
             }
+        },
+        {
+			"comments": "Create VPN gateway in Hub_VNet1.",
+			"name": "Hub_GW1",
+            "type": "Microsoft.Resources/deployments",
+			"apiVersion": "2016-09-01",
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('vpnGwTemplateUri')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": "[variables('vpnGwTemplateHub')]" 
+            },
+            "dependsOn": [
+                "Hub_VNet1-gwPip",
+                "vnets"                
+            ]
+        },
+        {
+			"comments": "Create VPN gateway in OnPrem_VNet1.",
+			"name": "OnPrem_GW1",
+            "type": "Microsoft.Resources/deployments",
+			"apiVersion": "2016-09-01",
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('vpnGwTemplateUri')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": "[variables('vpnGwTemplateOnPrem')]" 
+            },
+            "dependsOn": [
+                "OnPrem_VNet-gwPip",
+                "vnets"                
+            ]
         }
      ]
 }
