@@ -13,7 +13,7 @@
             "metadata": { "description": "Name of the hub Vnet" }
          },
          "useRemoteGateways": {
-             "defaultValue": true,
+             "defaultValue": false,
              "type":"bool",
              "allowedValues": [
                  true, false
