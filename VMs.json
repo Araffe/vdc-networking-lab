@@ -105,7 +105,7 @@
           }
         },
         "dependsOn": [
-          "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'1-nic'))]"
+          "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'),'1-nic')]"
         ]
       }
     }
