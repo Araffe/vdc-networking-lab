@@ -28,7 +28,7 @@
     },
     "spokeNicCount": {
       "defaultValue": "2",
-      "type": "string"
+      "type": "int"
     },
     "vmType": {
       "defaultValue": "ubuntu",
