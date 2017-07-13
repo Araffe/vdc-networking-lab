@@ -79,6 +79,12 @@
             "vmName": {
                 "value": "Spoke2-VM"
             },
+            "lbPIPName": {
+                "value": "Spoke2-LB-PIP"
+            },
+            "lbName": {
+                "value": "Spoke2-LB"
+            },
             "vnetName": {
                 "value": "Spoke_VNet2"
             },
@@ -93,11 +99,20 @@
             },
             "adminPassword": {
                 "value": "[parameters('adminPassword')]"
+            },
+            "availabilitySetName": {
+                "value": "Spoke2-AvailabilitySet"
             }
         },
         "vmTemplateSpoke3": {
             "vmName": {
                 "value": "Spoke3-VM"
+            },
+            "lbPIPName": {
+                "value": "Spoke3-LB-PIP"
+            },
+            "lbName": {
+                "value": "Spoke3-LB"
             },
             "vnetName": {
                 "value": "Spoke_VNet3"
@@ -113,6 +128,9 @@
             },
             "adminPassword": {
                 "value": "[parameters('adminPassword')]"
+            },
+            "availabilitySetName": {
+                "value": "Spoke3-AvailabilitySet"
             }
         }
     },
@@ -257,7 +275,7 @@
             ]
         },
         {
-            "comments": "Create two VMs in Spoke 1 VNet",
+            "comments": "Create two VMs in an availabilty set with load balancing in Spoke 1 VNet",
             "name": "createVMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
@@ -268,6 +286,23 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": "[variables('vmTemplateSpoke1')]"
+            },
+            "dependsOn": [
+                "vnets"
+            ]
+        },
+        {
+            "comments": "Create two VMs in an availabilty set with load balancing in Spoke 2 VNet",
+            "name": "createVMs",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vmTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vmTemplateSpoke2')]"
             },
             "dependsOn": [
                 "vnets"
