@@ -250,7 +250,7 @@
         },
         {
             "comments": "Create two VMs in Spoke 1 VNet",
-            "name": "[variables('vmTemplateSpoke1')]'",
+            "name": "createVMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
