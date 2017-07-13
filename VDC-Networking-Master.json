@@ -2,90 +2,195 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "adminUsername": {
+            "defaultValue": "labuser",
+            "type": "string",
+            "metadata": {
+                "description": "Username for VMs"
+            }
+        },
+        "adminPassword": {
+            "defaultValue": "M1crosoft123",
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for VMs"
+            }
+        }
     },
     "variables": {
         "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/",
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
         "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
-        "vpnGwTemplateUri": "[concat(variables('baseURL'), 'vpn-gw.json')]",
-         "vpnGwTemplateHub": {
-                "vnetName": { "value": "Hub_VNet" },
-                "gwName": { "value": "Hub_GW1" },
-                "PIPName": { "value": "Hub_VNet-gwPip" }
+        "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
+        "vmTemplateURL": "[concat(variables('baseURL'), 'VMs.json')]",
+        "vpnGwTemplateHub": {
+            "vnetName": {
+                "value": "Hub_VNet"
+            },
+            "gwName": {
+                "value": "Hub_GW1"
+            },
+            "PIPName": {
+                "value": "Hub_VNet-gwPip"
+            }
         },
         "vpnGwTemplateOnPrem": {
-                "vnetName": { "value": "OnPrem_VNet" },
-                "gwName": { "value": "OnPrem_GW1" },
-                "PIPName": { "value": "OnPrem_VNet-gwPip" }
+            "vnetName": {
+                "value": "OnPrem_VNet"
+            },
+            "gwName": {
+                "value": "OnPrem_GW1"
+            },
+            "PIPName": {
+                "value": "OnPrem_VNet-gwPip"
+            }
+        },
+        "vmTemplateSpoke1": {
+            "vmName": {
+                "value": "Spoke1VM"
+            },
+            "vnetName": {
+                "value": "Spoke_VNet1"
+            },
+            "subnetName": {
+                "value": "Spoke_VNet1-Subnet"
+            },
+            "vmType": {
+                "value": "ubuntu"
+            },
+            "adminUsername": {
+                "value": "[parameters('adminUsername')]"
+            },
+            "adminPassword": {
+                "value": "[parameters('adminPassword')]"
+            }
+        },
+        "vmTemplateSpoke2": {
+            "vmName": {
+                "value": "Spoke2VM"
+            },
+            "vnetName": {
+                "value": "Spoke_VNet2"
+            },
+            "subnetName": {
+                "value": "Spoke_VNet2-Subnet"
+            },
+            "vmType": {
+                "value": "ubuntu"
+            },
+            "adminUsername": {
+                "value": "[parameters('adminUsername')]"
+            },
+            "adminPassword": {
+                "value": "[parameters('adminPassword')]"
+            }
+        },
+        "vmTemplateSpoke3": {
+            "vmName": {
+                "value": "Spoke3VM"
+            },
+            "vnetName": {
+                "value": "Spoke_VNet3"
+            },
+            "subnetName": {
+                "value": "Spoke_VNet3-Subnet"
+            },
+            "vmType": {
+                "value": "ubuntu"
+            },
+            "adminUsername": {
+                "value": "[parameters('adminUsername')]"
+            },
+            "adminPassword": {
+                "value": "[parameters('adminPassword')]"
+            }
         }
     },
-     "resources": [
-		{
-			"comments": "Create 5 VNets - 1 hub, 3 spokes and 1 on-premise",
+    "resources": [
+        {
+            "comments": "Create 5 VNets - 1 hub, 3 spokes and 1 on-premise",
             "name": "vnets",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-06-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vnetTemplateURL')]",
-					"contentVersion": "1.0.0.0"
-				}
-			}
-		},
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
         {
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet1",
             "name": "Hub-Spoke1-Peering",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-06-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vnetPeeringTemplateURL')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": {
-                    "hubVnetName": { "value": "Hub_VNet" },    
-                    "spokeVnetName": { "value": "Spoke_VNet1" }
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetPeeringTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "hubVnetName": {
+                        "value": "Hub_VNet"
+                    },
+                    "spokeVnetName": {
+                        "value": "Spoke_VNet1"
+                    }
                 }
-			},
-            "dependsOn": ["vnets"]
+            },
+            "dependsOn": [
+                "vnets"
+            ]
         },
         {
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet2",
             "name": "Hub-Spoke2-Peering",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-06-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vnetPeeringTemplateURL')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": {
-                    "hubVnetName": { "value": "Hub_VNet" },    
-                    "spokeVnetName": { "value": "Spoke_VNet2" }
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetPeeringTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "hubVnetName": {
+                        "value": "Hub_VNet"
+                    },
+                    "spokeVnetName": {
+                        "value": "Spoke_VNet2"
+                    }
                 }
-			},
-            "dependsOn": ["vnets"]
+            },
+            "dependsOn": [
+                "vnets"
+            ]
         },
         {
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet3",
             "name": "Hub-Spoke3-Peering",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-06-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vnetPeeringTemplateURL')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": {
-                    "hubVnetName": { "value": "Hub_VNet" },    
-                    "spokeVnetName": { "value": "Spoke_VNet3" }
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetPeeringTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "hubVnetName": {
+                        "value": "Hub_VNet"
+                    },
+                    "spokeVnetName": {
+                        "value": "Spoke_VNet3"
+                    }
                 }
-			},
-            "dependsOn": ["vnets"]
+            },
+            "dependsOn": [
+                "vnets"
+            ]
         },
         {
             "comments": "Create public IP address for VNet GW in Hub_VNet",
@@ -97,7 +202,7 @@
                 "publicIPAllocationMethod": "Dynamic"
             }
         },
-         {
+        {
             "comments": "Create public IP address for VNet GW in OnPrem_VNet",
             "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Network/publicIPAddresses",
@@ -108,40 +213,57 @@
             }
         },
         {
-			"comments": "Create VPN gateway in Hub_VNet1.",
-			"name": "Hub_GW1",
+            "comments": "Create VPN gateway in Hub_VNet1.",
+            "name": "Hub_GW1",
             "type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-09-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vpnGwTemplateUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": "[variables('vpnGwTemplateHub')]" 
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vpnGwTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vpnGwTemplateHub')]"
             },
             "dependsOn": [
                 "Hub_VNet-gwPip",
-                "vnets"                
+                "vnets"
             ]
         },
         {
-			"comments": "Create VPN gateway in OnPrem_VNet1.",
-			"name": "OnPrem_GW1",
+            "comments": "Create VPN gateway in OnPrem_VNet1.",
+            "name": "OnPrem_GW1",
             "type": "Microsoft.Resources/deployments",
-			"apiVersion": "2016-09-01",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vpnGwTemplateUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": "[variables('vpnGwTemplateOnPrem')]" 
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vpnGwTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vpnGwTemplateOnPrem')]"
             },
             "dependsOn": [
                 "OnPrem_VNet-gwPip",
-                "vnets"                
+                "vnets"
+            ]
+        },
+        {
+            "comments": "Create two VMs in Spoke 1 VNet",
+            "name": "[variables('vmTemplateSpoke1')]'",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vmTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vmTemplateSpoke1')]"
+            },
+            "dependsOn": [
+                "vnets"
             ]
         }
-     ]
+    ]
 }

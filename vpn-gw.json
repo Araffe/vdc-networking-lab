@@ -9,15 +9,19 @@
         "gwName": {
             "defaultValue": "gw",
             "type": "string",
-            "metadata": { "description": "Name for the VPN gateway"}    
+            "metadata": {
+                "description": "Name for the VPN gateway"
+            }
         },
         "PIPName": {
             "defaultValue": "gwPIP",
             "type": "string",
-            "metadata": { "description": "Public IP address for the VPN gateway"}
+            "metadata": {
+                "description": "Public IP address for the VPN gateway"
+            }
         }
     },
-     "resources": [
+    "resources": [
         {
             "comments": "Create a VPN gateway",
             "apiVersion": "2016-09-01",

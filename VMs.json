@@ -1,0 +1,123 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "defaultValue": "VNet",
+      "type": "string"
+    },
+    "subnetName": {
+      "defaultValue": "Subnet",
+      "type": "string"
+    },
+    "storageAccountName": {
+      "defaultValue": "[concat('storage',uniqueString(resourceGroup().id))]",
+      "type": "string"
+    },
+    "adminUsername": {
+      "defaultValue": null,
+      "type": "string"
+    },
+    "adminPassword": {
+      "defaultValue": null,
+      "type": "securestring"
+    },
+    "vmName": {
+      "defaultValue": "vm",
+      "type": "string"
+    },
+    "spokeNicCount": {
+      "defaultValue": "2",
+      "type": "string"
+    },
+    "vmType": {
+      "defaultValue": "ubuntu",
+      "type": "string",
+      "allowedValues": [
+        "ubuntu"
+      ]
+    }
+  },
+  "variables": {
+    "nicName": "[concat(parameters('vmName'),'-nic')]",
+    "diskName": "[concat(parameters('vmName'),'-disk')]",
+    "apiVersion": "2016-03-30"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-04-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('nicName'), copyIndex(1))",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('subnetName'), copyIndex(1))]"
+              }
+            }
+          }
+        ]
+      },
+      "copy": {
+        "name": "nicLoop",
+        "count": "[parameters('spokeNicCount')]"
+      }
+    },
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_A0"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04.0-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": "false"
+          }
+        }
+      }
+    }
+  ]
+}
