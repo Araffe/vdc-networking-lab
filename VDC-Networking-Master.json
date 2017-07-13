@@ -23,6 +23,7 @@
         "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
         "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
         "vmTemplateURL": "[concat(variables('baseURL'), 'VMs.json')]",
+        "dummyTemplateURL": "[concat(variables('baseURL'), 'Nothing.json')]",
         "vpnGwTemplateHub": {
             "vnetName": {
                 "value": "Hub_VNet"
@@ -47,7 +48,7 @@
         },
         "vmTemplateSpoke1": {
             "vmName": {
-                "value": "Spoke1VM"
+                "value": "Spoke1-VM"
             },
             "vnetName": {
                 "value": "Spoke_VNet1"
@@ -67,7 +68,7 @@
         },
         "vmTemplateSpoke2": {
             "vmName": {
-                "value": "Spoke2VM"
+                "value": "Spoke2-VM"
             },
             "vnetName": {
                 "value": "Spoke_VNet2"
@@ -87,7 +88,7 @@
         },
         "vmTemplateSpoke3": {
             "vmName": {
-                "value": "Spoke3VM"
+                "value": "Spoke3-VM"
             },
             "vnetName": {
                 "value": "Spoke_VNet3"
@@ -220,7 +221,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vpnGwTemplateURL')]",
+                    "uri": "[variables('dummyTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": "[variables('vpnGwTemplateHub')]"
@@ -238,7 +239,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vpnGwTemplateURL')]",
+                    "uri": "[variables('dummyTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": "[variables('vpnGwTemplateOnPrem')]"
