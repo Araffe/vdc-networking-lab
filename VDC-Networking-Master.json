@@ -64,6 +64,9 @@
             },
             "adminPassword": {
                 "value": "[parameters('adminPassword')]"
+            },
+            "availabilitySetName": {
+                "value": "Spoke1-AvailabilitySet"
             }
         },
         "vmTemplateSpoke2": {
@@ -224,7 +227,6 @@
                     "uri": "[variables('dummyTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 }
-
             },
             "dependsOn": [
                 "Hub_VNet-gwPip",
@@ -242,7 +244,6 @@
                     "uri": "[variables('dummyTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 }
-
             },
             "dependsOn": [
                 "OnPrem_VNet-gwPip",

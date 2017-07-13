@@ -26,7 +26,15 @@
       "defaultValue": "vm",
       "type": "string"
     },
+    "availabilitySetName": {
+      "defaultValue": "AvSet",
+      "type": "string"
+    },
     "spokeNicCount": {
+      "defaultValue": 2,
+      "type": "int"
+    },
+    "vmCount": {
       "defaultValue": 2,
       "type": "int"
     },
@@ -68,46 +76,64 @@
       }
     },
     {
-      "apiVersion": "2017-03-30",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetName')]",
+      "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'),'1-nic')]"
-      ],
       "properties": {
-        "hardwareProfile": {
-          "vmSize": "Standard_A0"
-        },
-        "osProfile": {
-          "computerName": "[parameters('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "canonical",
-            "offer": "UbuntuServer",
-            "sku": "16.04.0-LTS",
-            "version": "latest"
+        "platformFaultDomainCount": "2",
+        "platformUpdateDomainCount": "2",
+        "managed": "true"
+      }
+    },
+    {
+        "apiVersion": "2017-03-30",
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[concat(parameters('vmName'), copyIndex(1)]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'), copyIndex(1) ,'-nic')]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "Standard_A0"
           },
-          "osDisk": {
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'1-nic'))]"
+          "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "canonical",
+              "offer": "UbuntuServer",
+              "sku": "16.04.0-LTS",
+              "version": "latest"
+            },
+            "osDisk": {
+              "createOption": "FromImage"
             }
-          ]
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), copyIndex(1), '-nic'))]"
+              }
+            ]
+          },
+          "diagnosticsProfile": {
+            "bootDiagnostics": {
+              "enabled": "false"
+            }
+          },
+          "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
+        }
         },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "false"
-          }
+        "copy": {
+          "name": "vmLoop",
+          "count": "[parameters('vmCount')]"
         }
       }
-    }
-  ]
-}
+    ]
+  }
