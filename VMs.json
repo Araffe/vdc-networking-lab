@@ -103,7 +103,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[concat(resourceId('Microsoft.Network/networkInterfaces/', parameters('vmName'), '1-nic'))]"
+              "id": "Microsoft.Network/networkInterfaces/Spoke1-VM1-nic"
             }
           ]
         },
