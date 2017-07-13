@@ -76,7 +76,7 @@
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('vmName'), '1-nic')]"
+        "[concat(resourceId('Microsoft.Network/networkInterfaces/', parameters('vmName'), '1-nic'))]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -108,7 +108,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'), '1-nic')]"
+              "id": "[concat(resourceId('Microsoft.Network/networkInterfaces/', parameters('vmName'), '1-nic'))]"
             }
           ]
         },
