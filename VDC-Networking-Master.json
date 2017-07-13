@@ -50,6 +50,12 @@
             "vmName": {
                 "value": "Spoke1-VM"
             },
+            "lbPIPName": {
+                "value": "Spoke1-LB-PIP"
+            },
+            "lbName": {
+                "value": "Spoke1-LB"
+            },
             "vnetName": {
                 "value": "Spoke_VNet1"
             },
