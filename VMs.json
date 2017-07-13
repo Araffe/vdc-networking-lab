@@ -72,6 +72,9 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'),'1-nic')]"
+      ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "Standard_A0"
@@ -103,10 +106,7 @@
           "bootDiagnostics": {
             "enabled": "false"
           }
-        },
-        "dependsOn": [
-          "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'),'1-nic')]"
-        ]
+        }
       }
     }
   ]
