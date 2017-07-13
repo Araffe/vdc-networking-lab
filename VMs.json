@@ -27,7 +27,7 @@
       "type": "string"
     },
     "spokeNicCount": {
-      "defaultValue": "2",
+      "defaultValue": 2,
       "type": "int"
     },
     "vmType": {
