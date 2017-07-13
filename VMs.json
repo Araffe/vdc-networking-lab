@@ -49,9 +49,6 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(parameters('vmName'), copyIndex(1), '-nic')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
-      ],
       "properties": {
         "ipConfigurations": [
           {
