@@ -76,7 +76,7 @@
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat(resourceId('Microsoft.Network/networkInterfaces/', parameters('vmName'), '1-nic'))]"
+        "Microsoft.Network/networkInterfaces/Spoke1-VM1-nic"
       ],
       "properties": {
         "hardwareProfile": {
