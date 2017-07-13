@@ -79,7 +79,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('lbName')), '/backendAddressPools/BackendPool')]"
+                  "id": "[resourceId('Microsoft.Network/loadBalancers', concat(parameters('lbName'), '/backendAddressPools/BackendPool'))]"
                 }
               ]
             }
