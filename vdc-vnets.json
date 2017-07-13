@@ -59,7 +59,7 @@
         },
         {
             "comments": "Hub VNet with 2 subnets",
-            "name": "Hub_Vnet",
+            "name": "Hub_VNet",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
@@ -71,13 +71,13 @@
                 },
                 "subnets": [
                     {
-                        "name": "Hub_Vnet-Subnet1",
+                        "name": "Hub_VNet-Subnet1",
                         "properties": {
                             "addressPrefix": "10.101.1.0/24"
                         }
                     },
                     {
-                        "name": "Hub_Vnet-Subnet2",
+                        "name": "Hub_VNet-Subnet2",
                         "properties": {
                             "addressPrefix": "10.101.2.0/24"
                         }
@@ -93,7 +93,7 @@
         },
         {
             "comments": "On Premises VNet with 2 subnets",
-            "name": "OnPrem_Vnet",
+            "name": "OnPrem_VNet",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
@@ -105,13 +105,13 @@
                 },
                 "subnets": [
                     {
-                        "name": "OnPrem_Vnet-Subnet1",
+                        "name": "OnPrem_VNet-Subnet1",
                         "properties": {
                             "addressPrefix": "10.102.1.0/24"
                         }
                     },
                     {
-                        "name": "OnPrem_Vnet-Subnet2",
+                        "name": "OnPrem_VNet-Subnet2",
                         "properties": {
                             "addressPrefix": "10.102.2.0/24"
                         }
