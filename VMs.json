@@ -47,7 +47,7 @@
     {
       "apiVersion": "2017-04-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('nicName'), copyIndex(1))",
+      "name": "[concat(parameters('vmName'), copyIndex(1), '-nic')",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
