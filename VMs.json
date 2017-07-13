@@ -72,7 +72,6 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
-
       "properties": {
         "hardwareProfile": {
           "vmSize": "Standard_A0"
@@ -91,19 +90,12 @@
           },
           "osDisk": {
             "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "diskSizeGB": "1023",
-              "lun": 0,
-              "createOption": "Empty"
-            }
-          ]
+          }
         },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id":  "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'1-nic'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'1-nic'))]"
             }
           ]
         },
@@ -111,7 +103,10 @@
           "bootDiagnostics": {
             "enabled": "false"
           }
-        }
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'),'1-nic'))]"
+        ]
       }
     }
   ]
