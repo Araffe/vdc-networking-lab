@@ -65,6 +65,9 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(parameters('vmName'), copyIndex(1), '-nic')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+      ],
       "properties": {
         "ipConfigurations": [
           {
@@ -78,10 +81,10 @@
           }
         ],
         "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(resourceID('Microsoft.Network/loadBalancers', parameters('lbName')), '/backendAddressPools/BackendPool')]"
-                }
-              ]
+          {
+            "id": "[resourceId('Microsoft.Network/loadBalancers', concat(parameters('lbName'), '/backendAddressPools/BackendPool'))]"
+          }
+        ]
       },
       "copy": {
         "name": "nicLoop",
@@ -113,7 +116,7 @@
             "name": "LoadBalancerFrontEnd",
             "properties": {
               "publicIPAddress": {
-                "id": "[concat('Microsoft.Network/publicIPAddresses/', parameters('lbPIPName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('lbPIPName'))]"
               }
             }
           }
