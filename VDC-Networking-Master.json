@@ -276,7 +276,7 @@
         },
         {
             "comments": "Create two VMs in an availabilty set with load balancing in Spoke 1 VNet",
-            "name": "createVMs",
+            "name": "createSpoke1VMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
@@ -293,7 +293,7 @@
         },
         {
             "comments": "Create two VMs in an availabilty set with load balancing in Spoke 2 VNet",
-            "name": "createVMs",
+            "name": "createSpoke2VMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
