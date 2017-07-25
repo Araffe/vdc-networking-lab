@@ -17,6 +17,10 @@
         "vnetName": {
             "defaultValue": "VNet",
             "type": "string"
+        },
+        "VDCResourceGroup": {
+            "defaultValue": "VDCTest",
+            "type": "string"
         }
     },
     "variables": {
@@ -30,14 +34,15 @@
         "vmSize": "Standard_D2_V2",
         "subnet1Name": "Hub_VNet-Subnet1",
         "subnet2Name": "Hub_VNet-Subnet2",
-        "subnet1Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('Subnet1Name'))]",
-        "subnet2Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('Subnet2Name'))]",
+        "subnet1Ref": "[concat(variables('vnetID'),'/subnets/', parameters('subnet1Name'))]",
+        "subnet2Ref": "[concat(variables('vnetID'),'/subnets/', parameters('subnet2Name'))]",
         "addressPrefix": "10.1.0.0/16",
         "subnet1Prefix": "10.101.1.0/24",
         "subnet2Prefix": "10.101.2.0/24",
         "subnet1StartAddress": "10.101.1.4",
         "subnet2StartAddress": "10.101.2.4",
-        "nsgname": "[concat(variables('vmName'),'-SSH-SecurityGroup')]"
+        "nsgname": "[concat(variables('vmName'),'-SSH-SecurityGroup')]",
+        "vnetID": "[resourceId(parameters('VDCResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('vNetName'))]"
     },
     "resources": [
         {
@@ -115,7 +120,6 @@
                 ]
             }
         },
-
         {
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Network/networkInterfaces",
