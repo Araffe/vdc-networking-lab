@@ -145,7 +145,7 @@
                 "value": "[parameters('adminPassword')]"
             },
             "VDCResourceGroup": {
-                "value": "[resourceGroup()]"
+                "value": "resourceGroup()"
             }
         }
     },
