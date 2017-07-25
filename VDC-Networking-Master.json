@@ -24,6 +24,7 @@
         "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
         "vmTemplateURL": "[concat(variables('baseURL'), 'VMs.json')]",
         "dummyTemplateURL": "[concat(variables('baseURL'), 'Nothing.json')]",
+        "nvaTemplateURL": "[concat(variables('baseURL'), 'Deploy-NVAs.json')]",
         "vpnGwTemplateHub": {
             "vnetName": {
                 "value": "Hub_VNet"
@@ -131,6 +132,17 @@
             },
             "availabilitySetName": {
                 "value": "Spoke3-AvailabilitySet"
+            }
+        },
+        "nvaTemplate": {
+            "vnetName": {
+                "value": "Hub_VNet"
+            },
+            "adminUsername": {
+                "value": "[parameters('adminUsername')]"
+            },
+            "adminPassword": {
+                "value": "[parameters('adminPassword')]"
             }
         }
     },
@@ -307,6 +319,24 @@
             "dependsOn": [
                 "vnets"
             ]
-        }
+        },
+        {
+            "comments": "Create Cisco CSR routers",
+            "name": "createNVAs",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "VDC-NVA",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nvaTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('nvaTemplate')]"
+            },
+            "dependsOn": [
+                "vnets"
+            ]
+        },
     ]
 }
