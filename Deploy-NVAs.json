@@ -19,7 +19,7 @@
             "type": "string"
         },
         "VDCResourceGroup": {
-            "defaultValue": "VDCTest",
+            "defaultValue": "VDC-Lab",
             "type": "string"
         }
     },
