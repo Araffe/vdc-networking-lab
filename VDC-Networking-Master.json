@@ -325,7 +325,7 @@
             "name": "createNVAs",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "VDC-NVA",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
