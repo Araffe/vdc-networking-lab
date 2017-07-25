@@ -122,7 +122,6 @@
             "name": "[concat(variables('vmName'),'-Nic0')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
                 "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
             ],
             "properties": {
@@ -149,9 +148,7 @@
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(variables('vmName'),'-Nic1')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-            ],
+            "dependsOn": [],
             "properties": {
                 "ipConfigurations": [
                     {
