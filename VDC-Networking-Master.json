@@ -22,7 +22,8 @@
         "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
         "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
         "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
-        "vmTemplateURL": "[concat(variables('baseURL'), 'VMs.json')]",
+        "singleVMTemplateURL": "[concat(variables('baseURL'), 'Single-VM.json')]",
+        "multiVMTemplateURL": "[concat(variables('baseURL'), 'MultiVM-LoadBalanced.json')]",
         "dummyTemplateURL": "[concat(variables('baseURL'), 'Nothing.json')]",
         "nvaTemplateURL": "[concat(variables('baseURL'), 'Deploy-NVAs.json')]",
         "vpnGwTemplateHub": {
@@ -132,6 +133,30 @@
             },
             "availabilitySetName": {
                 "value": "Spoke3-AvailabilitySet"
+            }
+        },
+        "vmTemplateOnPrem": {
+            "vmName": {
+                "value": "OnPrem-VM1"
+            },
+            "vnetName": {
+                "value": "OnPrem_VNet"
+            },
+            "subnetName": {
+                "value": "OnPrem_VNet-Subnet1"
+            },
+            "vmType": {
+                "value": "ubuntu"
+            },
+            "adminUsername": {
+                "value": "[parameters('adminUsername')]"
+            },
+            "adminPassword": {
+                "value": "[parameters('adminPassword')]"
+            },
+            "vmPIPName": {
+                "defaultValue": "OnPrem-VM1-PIP",
+                "type": "string"
             }
         },
         "nvaTemplate": {
@@ -290,14 +315,14 @@
             ]
         },
         {
-            "comments": "Create two VMs in an availabilty set with load balancing in Spoke 1 VNet",
+            "comments": "Create two VMs in an availability set with load balancing in Spoke 1 VNet",
             "name": "createSpoke1VMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vmTemplateURL')]",
+                    "uri": "[variables('multiVMTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": "[variables('vmTemplateSpoke1')]"
@@ -307,14 +332,14 @@
             ]
         },
         {
-            "comments": "Create two VMs in an availabilty set with load balancing in Spoke 2 VNet",
+            "comments": "Create two VMs in an availability set with load balancing in Spoke 2 VNet",
             "name": "createSpoke2VMs",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vmTemplateURL')]",
+                    "uri": "[variables('multiVMTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": "[variables('vmTemplateSpoke2')]"
@@ -324,7 +349,24 @@
             ]
         },
         {
-            "comments": "Create Cisco CSR routers",
+            "comments": "Create single VM in on-premises VNet",
+            "name": "createOnPremVM",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('singleVMTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vmTemplateOnPrem')]"
+            },
+            "dependsOn": [
+                "vnets"
+            ]
+        },
+        {
+            "comments": "Create Cisco CSR router in Hub VNet",
             "name": "createNVAs",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "VDC-NVA",
@@ -340,6 +382,6 @@
             "dependsOn": [
                 "vnets"
             ]
-        },
+        }
     ]
 }
