@@ -155,8 +155,7 @@
                 "value": "[parameters('adminPassword')]"
             },
             "vmPIPName": {
-                "defaultValue": "OnPrem-VM1-PIP",
-                "type": "string"
+                "value": "OnPrem-VM1-PIP"
             }
         },
         "nvaTemplate": {
