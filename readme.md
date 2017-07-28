@@ -8,6 +8,14 @@
 
 **[Part 1: Explore VDC Environment](#explore)**
 
+**[Part 2: Configure the Environment](#configure)**
+
+- [Configure site-to-site VPN](#vpn)
+
+- [Configure Cisco CSR1000V](#cisco)
+
+- [Configure User Defined Routes](#udr)
+
 
 
 **[Decommission the lab](#decommission)**
@@ -95,8 +103,25 @@ In this section of the lab, we will explorer the environment that has been deplo
 
 **2)** Under the resource group *VDC-Main*, look at each of the virtual networks and the subnets created within each one. You will notice that *Hub_Vnet* and *OnPrem_VNet* have an additional subnet called *GatewaySubnet* - this is a special subnet used for the VPN gateway.
 
- **3)** Navigate to the *Spoke1-LB* load balancer. From here, navigate to 'Backend Pools' - you will see that both virtual machines are configured as part of the back end pool for the load balancer, as shown in figure 3.
+**3)** Navigate to the *Spoke1-LB* load balancer. From here, navigate to 'Backend Pools' - you will see that both virtual machines are configured as part of the back end pool for the load balancer, as shown in figure 3.
 
- ![LB Backend Pools](https://github.com/Araffe/vdc-networking-lab/blob/master/BackendPools.JPG "LB Backend Pools")
+![LB Backend Pools](https://github.com/Araffe/vdc-networking-lab/blob/master/BackendPools.JPG "LB Backend Pools")
 
 **Figure 3:** Load Balancer Backend Pools View
+
+**4)** Navigate to the virtual network named *Hub_Vnet* in the *VDC-Main* resource group and then select 'Peerings'. Notice that the hub virtual network has VNet peerings configured with each of the spoke VNets.
+
+![Vnet Peerings](https://github.com/Araffe/vdc-networking-lab/blob/master/VNet-Peerings.JPG "Vnet Peerings")
+
+**Figure 4:** Virtual Network Peerings
+
+**5)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
+
+Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
+
+# Configure the Environment <a name="configure"></a>
+
+## Configure Site-to-site VPN <a name="vpn"></a>
+
+In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
+

@@ -48,7 +48,7 @@
                 "value": "Hub_VNet-gwPip"
             },
             "asNumber": {
-                "value": 65514
+                "value": "65514"
             }
         },
         "vpnGwTemplateOnPrem": {
@@ -62,7 +62,7 @@
                 "value": "OnPrem_VNet-gwPip"
             },
             "asNumber": {
-                "value": 65515
+                "value": "65515"
             }
         },
         "vmTemplateSpoke1": {
