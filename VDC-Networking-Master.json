@@ -301,7 +301,8 @@
                 "templateLink": {
                     "uri": "[variables('vpnGwTemplateURL')]",
                     "contentVersion": "1.0.0.0"
-                }
+                },
+                "parameters": "[variables('vpnGwTemplateHub')]"
             },
             "dependsOn": [
                 "Hub_VNet-gwPip",
@@ -319,7 +320,8 @@
                 "templateLink": {
                     "uri": "[variables('vpnGwTemplateURL')]",
                     "contentVersion": "1.0.0.0"
-                }
+                },
+                "parameters": "[variables('vpnGwTemplateOnPrem')]"
             },
             "dependsOn": [
                 "OnPrem_VNet-gwPip",
