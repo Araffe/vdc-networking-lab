@@ -82,11 +82,13 @@ Once the template deployment has succeeded, you can proceed to the next sections
 In this section of the lab, we will explorer the environment that has been deployed to Azure by the ARM templates. The lab environment has the following topology:
 
 ![Main VDC Image](https://github.com/araffe/vdc-networking-lab/blob/master/VDC-Networking-Main.jpg "VDC Environment")
+
 **Figure 1:** VDC Lab Environment
 
 **1)** Use the Azure portal to explore the resources that have been created for you. Navigate to the resource group *VDC-Main* to get an overall view of the resources deployed:
 
 ![Main VDC Resource Group Image](https://github.com/Araffe/vdc-networking-lab/blob/master/VDC-Main-RG.JPG "VDC-Main Resource Group")
+
 **Figure 2:** VDC-Main Resource Group View
 
 **Tip**: Select 'group by type' on the top right of the resource group view to group the resources together.
@@ -96,4 +98,5 @@ In this section of the lab, we will explorer the environment that has been deplo
  **3)** Navigate to the *Spoke1-LB* load balancer. From here, navigate to 'Backend Pools' - you will see that both virtual machines are configured as part of the back end pool for the load balancer, as shown in figure 3.
 
  ![LB Backend Pools](https://github.com/Araffe/vdc-networking-lab/blob/master/BackendPools.JPG "LB Backend Pools")
+
 **Figure 3:** Load Balancer Backend Pools View
