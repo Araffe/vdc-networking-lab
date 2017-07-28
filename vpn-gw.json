@@ -52,8 +52,8 @@
                 ],
                 "gatewayType": "Vpn",
                 "sku": {
-                    "name": "Standard",
-                    "tier": "Standard",
+                    "name": "VpnGw1",
+                    "tier": "VpnGw1",
                     "capacity": 2
                 },
                 "gatewaySize": "Default",
