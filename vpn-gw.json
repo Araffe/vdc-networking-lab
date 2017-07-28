@@ -21,8 +21,8 @@
             }
         },
         "asNumber": {
-            "defaultValue": 65515,
-            "type": "int",
+            "defaultValue": "65515",
+            "type": "string",
             "metadata": {
                 "description": "BGP AS number for VPN gateways"
             }
@@ -55,7 +55,7 @@
                 "vpnType": "RouteBased",
                 "enableBgp": "true",
                 "bgpSettings": {
-                    "asn": "[parameters('asNumber')]"
+                    "asn": "[int(parameters('asNumber'))]"
                 }
             }
         }

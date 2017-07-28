@@ -48,7 +48,6 @@
                 "value": "Hub_VNet-gwPip"
             },
             "asNumber": {
-                "type": "int",
                 "value": 65514
             }
         },
@@ -63,7 +62,6 @@
                 "value": "OnPrem_VNet-gwPip"
             },
             "asNumber": {
-                "type": "int",
                 "value": 65515
             }
         },
