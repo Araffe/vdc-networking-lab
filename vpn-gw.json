@@ -19,6 +19,13 @@
             "metadata": {
                 "description": "Public IP address for the VPN gateway"
             }
+        },
+        "asNumber": {
+            "defaultValue": 65515,
+            "type": "int",
+            "metadata": {
+                "description": "BGP AS number for VPN gateways"
+            }
         }
     },
     "resources": [
@@ -46,7 +53,10 @@
                 "gatewayType": "Vpn",
                 "gatewaySize": "Default",
                 "vpnType": "RouteBased",
-                "enableBgp": "true"
+                "enableBgp": "true",
+                "bgpSettings": {
+                    "asn": "parameters('asNumber')"
+                }
             }
         }
     ]
