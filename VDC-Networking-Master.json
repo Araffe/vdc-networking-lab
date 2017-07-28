@@ -15,6 +15,17 @@
             "metadata": {
                 "description": "Password for VMs"
             }
+        },
+        "createVPNGateway": {
+            "defaultValue": "yes",
+            "type": "string",
+            "allowedValues": [
+                "yes",
+                "no"
+            ],
+            "metadata": {
+                "description": "Controls whether VPN gateways will be deployed"
+            }
         }
     },
     "variables": {
@@ -282,12 +293,13 @@
         {
             "comments": "Create VPN gateway in Hub_VNet1.",
             "name": "Hub_GW1",
+            "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('dummyTemplateURL')]",
+                    "uri": "[variables('vpnGwTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 }
             },
@@ -299,12 +311,13 @@
         {
             "comments": "Create VPN gateway in OnPrem_VNet1.",
             "name": "OnPrem_GW1",
+            "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('dummyTemplateURL')]",
+                    "uri": "[variables('vpnGwTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 }
             },
