@@ -51,6 +51,11 @@
                     }
                 ],
                 "gatewayType": "Vpn",
+                "sku": {
+                    "name": "Standard",
+                    "tier": "Standard",
+                    "capacity": 2
+                },
                 "gatewaySize": "Default",
                 "vpnType": "RouteBased",
                 "enableBgp": "true",
