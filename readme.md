@@ -324,7 +324,7 @@ It turns out that there is an additional setting we must configure on the VNet p
 
 **3)** In the Azure portal, navigate to *Spoke_VNet1* in the 'VDC-Main' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
 
-![Use Remote GW](https://github.com/Araffe/vdc-networking-lab/blob/master/UseRemoteGW.jpg "Use Remote GW")
+![Use Remote GW](https://github.com/Araffe/vdc-networking-lab/blob/master/UseRemoteGW.JPG "Use Remote GW")
 
 **Figure 9:** Use Remote Gateway Option
 
