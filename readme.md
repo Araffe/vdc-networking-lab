@@ -123,7 +123,7 @@ In this section of the lab, we will explorer the environment that has been deplo
 
 Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
 
-# Configure the Environment <a name="configure"></a>
+# Part 2: Configure the Environment <a name="configure"></a>
 
 ## Configure Site-to-site VPN <a name="vpn"></a>
 
@@ -304,5 +304,31 @@ az network vnet subnet update --name Spoke_VNet1-Subnet1 --vnet-name Spoke_Vnet1
 az network vnet subnet update --name Spoke_VNet2-Subnet1 --vnet-name Spoke_Vnet2 --route-table Spoke2_UDR -g VDC-Main
 </pre>
 
+Great, everything is in place - we are no ready to test connectivity between our on-premises environment and the Spoke VNets.
+
 ## Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
+
+In this section, we'll perform some simple tests to validate connectivity between our "on-premises" environment and the Spoke VNets - this communication should occur through the Cisco CSR router that resides in the Hub VNet.
+
+**1)** SSH into the virtual machine named *OnPrem-VM1* as you did earlier.
+
+**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (with an IP address of 10.1.1.5):
+
+<pre lang="...">
+ssh labuser@10.1.1.5
+</pre>
+
+Although we have all the routing we need configured, this connectivity is still failing. Why?
+
+It turns out that there is an additional setting we must configure on the VNet peerings to allow this type of hub and spoke connectivity to happen. Follow these steps to make the required changes:
+
+**3)** In the Azure portal, navigate to *Spoke_VNet1* in the 'VDC-Main' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
+
+![Use Remote GW](https://github.com/Araffe/vdc-networking-lab/blob/master/UseRemoteGW.jpg "Use Remote GW")
+
+**Figure 9:** Use Remote Gateway Option
+
+**4)** From within the OnPrem_VM1 virtual machine, try to SSH to the Spoke VM once more. The connection attempt should now succeed.
+
+**5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g.10.2.1.5). This connection should also now succeed.
 
