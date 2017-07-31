@@ -111,7 +111,7 @@ In this section of the lab, we will explorer the environment that has been deplo
 
 **4)** Navigate to the virtual network named *Hub_Vnet* in the *VDC-Main* resource group and then select 'Peerings'. Notice that the hub virtual network has VNet peerings configured with each of the spoke VNets.
 
-![Vnet Peerings](https://github.com/Araffe/vdc-networking-lab/blob/master/VNet-Peerings.JPG "Vnet Peerings")
+![VNet Peerings](https://github.com/Araffe/vdc-networking-lab/blob/master/VNet-Peerings.JPG "VNet Peerings")
 
 **Figure 4:** Virtual Network Peerings
 
@@ -143,9 +143,9 @@ az network vpn-connection create --name OnPrem2Hub -g VDC-Main --vnet-gateway1 O
 
 At this point, we can start to verify the connectivity we have set up. One of the ways we can do this is by inspecting the *effective routes* associated with a virtual machine. Let's take a look at the effective routes associated with the *OnPrem_VM1* virtual machine that resides in the OnPrem VNet.
 
-**1)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-Main resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
+**4)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-Main resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
 
-**2)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see two entries for 'virtual network gateway', one of which specifies an address range of 10.101.0.0/16, as shown in figure 5.
+**5)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see two entries for 'virtual network gateway', one of which specifies an address range of 10.101.0.0/16, as shown in figure 5.
 
 ![Effective Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes1.JPG "Effective Routes")
 
@@ -156,3 +156,24 @@ Figure 6 shows a diagram explaining what we see when we view the effective route
 ![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes2.jpg "Routing from OnPrem_VM")
 
 **Figure 6:** Routing from OnPrem_VM
+
+Next, let's move on to configuring our Cisco Network Virtual Appliances.
+
+## Configure Cisco CSR1000V <a name="cisco"></a>
+
+One of the requirements many enterprise organisations have is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
+
+In our VDC environment, we are using Cisco CSR1000V routers in the Hub virtual network - CSR stands for *Cloud Services Router* and is a virtualised Cisco router running IOS-XE software. The CSR1000V is a fully featured Cisco router that supports most routing functionality, such as OSPF and BGP routing, IPSec VPNs and Zone Based Firewalls.
+
+The ARM templates used to deploy our VDC environment provisioned the CSR1000V router in the Hub virtual network, however it must now be configured in order to route traffic. Follow the steps in this section to configure the CSR1000V.
+
+**1)** To log on to the CSR1000V, you'll need to obtain the public IP address assigned to it. You can obtain this using the Azure portal (navigate to the *VDC-NVA* resource group and inspect the object named 'csr1-pip'). Alternatively, you can use the Azure CLI to obtain the public IP address, as follows:
+
+<pre lang="...">
+<b>az network public-ip list -g VDC-NVA -o table</b>
+  IpAddress      Location     Name     ProvisioningState    PublicIpAllocationMethod    ResourceGroup
+  ------------  -----------  --------  ------------------  ------------------------     ---------------
+ 40.68.197.125  westeurope   csr1-PIP   Succeeded           Dynamic                      VDC-NVA
+ </pre>
+ 
+**2)** Now that you have the public IP address, SSH to the CSR1000V VM using your favourite terminal emulator (e.g. Putty or similar).
