@@ -125,3 +125,34 @@ Now that you are familiar with the overall architecture, let's move on to the ne
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
+**1)** Using the Azure CLI (either local or using the Azure Cloud Shell), enter the following to create one side of the VPN connection:
+
+<pre lang="...">
+az network vpn-connection create --name Hub2OnPrem -g VDC-Main --vnet-gateway1 Hub_GW1 --vnet-gateway2 OnPrem_GW1 --shared-key M1crosoft123 --enable-bgp
+</pre>
+
+**2)** Use the Azure CLI to create the other side of the VPN connection:
+
+<pre lang="...">
+az network vpn-connection create --name OnPrem2Hub -g VDC-Main --vnet-gateway1 OnPrem_GW1 --vnet-gateway2 Hub_GW1 --shared-key M1crosoft123 --enable-bgp
+</pre>
+
+**3)** Using the Azure portal, under the resource group *VDC-Main* navigate to the *OnPrem_GW1* virtual network gateway resource and then click 'Connections'. You should see a successful VPN connection between the OnPrem and Hub VPN gateways.
+
+**Note:** It may take a few minutes before a successful connection is shown between the gateways.
+
+At this point, we can start to verify the connectivity we have set up. One of the ways we can do this is by inspecting the *effective routes* associated with a virtual machine. Let's take a look at the effective routes associated with the *OnPrem_VM1* virtual machine that resides in the OnPrem VNet.
+
+**1)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-Main resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
+
+**2)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see two entries for 'virtual network gateway', one of which specifies an address range of 10.101.0.0/16, as shown in figure 5.
+
+![Effective Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes1.JPG "Effective Routes")
+
+**Figure 5:** OnPrem_VM Effective Routes
+
+Figure 6 shows a diagram explaining what we see when we view the effective routes of OnPrem_VM.
+
+![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes2.JPG "Routing from OnPrem_VM")
+
+**Figure 6:** Routing from OnPrem_VM
