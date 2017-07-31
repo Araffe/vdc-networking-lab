@@ -41,6 +41,8 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 
 **Important: The initial lab setup using ARM templates takes around 45 minutes - please initiate this process as soon as possible to avoid a delay in starting the lab.**
 
+*All usernames and passwords for virtual machines (including Cisco CSR routers) are set to labuser / M1crosoft123*
+
 Perform the following steps to initialise the lab environment:
 
 **1)** Open an Azure CLI session, either using a local machine (e.g. Windows 10 Bash shell), or using the Azure portal cloud shell. If you are using a local CLI session, you must log in to Azure using the *az login* command as follows:
@@ -161,7 +163,7 @@ Next, let's move on to configuring our Cisco Network Virtual Appliances.
 
 ## Configure Cisco CSR1000V <a name="cisco"></a>
 
-One of the requirements many enterprise organisations have is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
+One of the requirements of many enterprise organisations is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
 
 In our VDC environment, we are using Cisco CSR1000V routers in the Hub virtual network - CSR stands for *Cloud Services Router* and is a virtualised Cisco router running IOS-XE software. The CSR1000V is a fully featured Cisco router that supports most routing functionality, such as OSPF and BGP routing, IPSec VPNs and Zone Based Firewalls.
 
@@ -176,4 +178,62 @@ The ARM templates used to deploy our VDC environment provisioned the CSR1000V ro
  40.68.197.125  westeurope   csr1-PIP   Succeeded           Dynamic                      VDC-NVA
  </pre>
  
-**2)** Now that you have the public IP address, SSH to the CSR1000V VM using your favourite terminal emulator (e.g. Putty or similar).
+**2)** Now that you have the public IP address, SSH to the CSR1000V VM using your favourite terminal emulator (e.g. Putty or similar). The username and password for the CSR are *labuser / M1crosoft123*.
+
+**3)** Enter configuration mode on the CSR:
+
+<pre lang="...">
+conf t
+ </pre>
+
+**4)** The CSR1000V has two interfaces - one connected to Hub_VNet-Subnet1 and the other connected to Hub_VNet-Subnet2. We want to ensure that these interfaces are configured using DHCP, so use the following CLI config to ensure that this is the case and that the interfaces are both in the 'up' state:
+
+<pre lang="...">
+vdc-csr-1(config)#interface gig1
+vdc-csr-1(config-if)#ip address dhcp
+vdc-csr-1(config-if)#no shut
+vdc-csr-1(config)#interface gig2
+vdc-csr-1(config-if)#ip address dhcp
+vdc-csr-1(config-if)#no shut
+vdc-csr-1(config-if)#exit
+vdc-csr-1(config)#exit
+ </pre>
+
+**5)** Verify that the interfaces are up and configured with an IP address as follows:
+
+<pre lang="...">
+vdc-csr-1#show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet1       10.101.1.4      YES DHCP   up                    up
+GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
+</pre>
+
+**Note:** At this point, you may be wondering why we are using DHCP to configure router interfaces (given that other devices use the interfaces to route to and they therefore must be consistent). The answer is that we have configured static addresses in Azure (essentially DHCP reservations) to ensure that the network interfaces will always receive a statically configured IP address.
+
+**6)** Find the public IP address of the virtual machine named *OnPrem_VM* using the following command:
+
+<pre lang="...">
+az network public-ip list -g VDC-Main -o table
+</pre>
+
+**7)** SSH to the public IP of OnPrem_VM. From within the VM, attempt to connect to the private IP address of one of the CSR1000V interfaces (10.101.1.4):
+
+<pre lang="...">
+ssh labuser@10.101.1.4
+</pre>
+
+This step should succeed, which proves connectivity between the On Premises and Hub VNets using the VPN connection. Figure 7 shows the connection we have just made.
+
+![SSH to NVA](https://github.com/Araffe/vdc-networking-lab/blob/master/SSHtoNVA.jpg "SSH to NVA")
+
+**Figure 6:** SSH from OnPrem_VM to vdc-csr-1
+
+**8)** From the VM, attempt to connect to the private IP address of a virtual machine within the Spoke 1 Vnet:
+
+<pre lang="...">
+ssh labuser@10.1.1.5
+</pre>
+
+This attempt will fail - the reason for this is that we do not yet have the correct routing in place to allow connectivity between the On Premises VNet and the Spoke VNets via the hub / NVA. In the next section, we will configure the routing required to achieve this.
+
+
