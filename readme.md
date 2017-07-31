@@ -16,6 +16,8 @@
 
 - [Configure User Defined Routes](#udr)
 
+- [Test Connectivity Between On-Premises and Spoke VNets](#testconn)
+
 
 
 **[Decommission the lab](#decommission)**
@@ -228,7 +230,7 @@ This step should succeed, which proves connectivity between the On Premises and 
 
 **Figure 6:** SSH from OnPrem_VM to vdc-csr-1
 
-**8)** From the VM, attempt to connect to the private IP address of a virtual machine within the Spoke 1 Vnet:
+**8)** From the same VM, attempt to connect to the private IP address of a virtual machine within the Spoke 1 Vnet:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
@@ -236,4 +238,71 @@ ssh labuser@10.1.1.5
 
 This attempt will fail - the reason for this is that we do not yet have the correct routing in place to allow connectivity between the On Premises VNet and the Spoke VNets via the hub / NVA. In the next section, we will configure the routing required to achieve this.
 
+## Configure User Defined Routes <a name="udr"></a>
+
+In this section, we will configured a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
+
+![User Defined Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/UDR.jpg "User Defined Routes")
+
+**Figure 7:** User Defined Routes
+
+We'll create our first User Define Route using the Azure portal, with subsequent UDRs configured using the Azure CLI.
+
+**1)** In the Azure portal, navigate to the *VDC-Main* resource group. Click 'Add' and then search for 'Route Table'. Select this and then create a new route table named *OnPrem-UDR*. Once complete, navigate to the newly created UDR in the VDC-Main resource group and select it.
+
+**2)** Click on 'Routes' and then 'Add'. Create a new route with the following parameters:
+
+- Route Name: *Spoke1-Route*
+- Address Prefix: *10.1.0.0/16*
+- Next Hop Type: *Virtual Network Gateway*
+
+Click 'Submit' to create the route. Repeat the process for Spoke 2 as follows:
+
+- Route Name: *Spoke2-Route*
+- Address Prefix: *10.2.0.0/16*
+- Next Hop Type: *Virtual Network Gateway*
+
+Figure 8 shows the route creation screen.
+
+![Defining UDRs](https://github.com/Araffe/vdc-networking-lab/blob/master/UDR2.jpg "Defining UDRs")
+
+**Figure 8:** Defining UDRs
+
+**3)** We now need to associate the UDR with a specific subnet. Click on 'Subnets' and then 'Associate'. Select the VNet 'OnPrem\_Vnet' and then the subnet 'OnPrem\_Vnet-Subnet1'. Click OK to associate the UDR to the subnet.
+
+We'll now switch to the Azure CLI to define the rest of the UDRs that we need.
+
+**4)** Create the UDR for the Hub Vnet (GatewaySubnet):
+
+<pre lang="...">
+az network route-table create --name Hub_UDR -g VDC-Main
+</pre>
+
+**5)** Create the routes to point to Spoke1 and Spoke2, via the Cisco CSR router:
+
+<pre lang="...">
+az network route-table route create --name Spoke1-Route --address-prefix 10.1.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Main
+az network route-table route create --name Spoke2-Route --address-prefix 10.2.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Main
+</pre>
+
+**6)** Associate the UDR with the GatewaySubnet inside the Hub Vnet:
+
+<pre lang="...">
+az network vnet subnet update --name Hub_Vnet-Subnet1 --vnet-name Hub_Vnet --route-table Hub_UDR -g VDC-Main
+</pre>
+
+**7)** Configure the UDRs for the Spoke VNets, with relevant routes and associate to the subnets:
+
+<pre lang="...">
+az network route-table create --name Spoke1_UDR -g VDC-Main
+az network route-table create --name Spoke2_UDR -g VDC-Main
+
+az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke1_UDR -g VDC-Main
+az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke2_UDR -g VDC-Main
+
+az network vnet subnet update --name Spoke_VNet1-Subnet1 --vnet-name Spoke_Vnet1 --route-table Spoke1_UDR -g VDC-Main
+az network vnet subnet update --name Spoke_VNet2-Subnet1 --vnet-name Spoke_Vnet2 --route-table Spoke2_UDR -g VDC-Main
+</pre>
+
+## Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
 
