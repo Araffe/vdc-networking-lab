@@ -6,17 +6,17 @@
 
 **[Initial Lab Setup](#setup)**
 
-**[Part 1: Explore VDC Environment](#explore)**
+**[Lab 1: Explore VDC Environment](#explore)**
 
-**[Part 2: Configure the Environment](#configure)**
+**[Lab 2: Configure the Environment](#configure)**
 
-- [Configure site-to-site VPN](#vpn)
+- [2.1: Configure site-to-site VPN](#vpn)
 
-- [Configure Cisco CSR1000V](#cisco)
+- [2.2: Configure Cisco CSR1000V](#cisco)
 
-- [Configure User Defined Routes](#udr)
+- [2.3: Configure User Defined Routes](#udr)
 
-- [Test Connectivity Between On-Premises and Spoke VNets](#testconn)
+- [2.4: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
 
 
 
@@ -89,7 +89,7 @@ VDC-Create          2017-07-28T09:14:44.088006+00:00  Succeeded
 
 Once the template deployment has succeeded, you can proceed to the next sections of the lab.
 
-# Part 1: Explore VDC Environment <a name="explore"></a>
+# Lab 1: Explore VDC Environment <a name="explore"></a>
 
 In this section of the lab, we will explorer the environment that has been deployed to Azure by the ARM templates. The lab environment has the following topology:
 
@@ -123,9 +123,9 @@ In this section of the lab, we will explorer the environment that has been deplo
 
 Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
 
-# Part 2: Configure the Environment <a name="configure"></a>
+# Lab 2: Configure the Environment <a name="configure"></a>
 
-## Configure Site-to-site VPN <a name="vpn"></a>
+## 2.1: Configure Site-to-site VPN <a name="vpn"></a>
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
@@ -163,7 +163,7 @@ Figure 6 shows a diagram explaining what we see when we view the effective route
 
 Next, let's move on to configuring our Cisco Network Virtual Appliances.
 
-## Configure Cisco CSR1000V <a name="cisco"></a>
+## 2.2: Configure Cisco CSR1000V <a name="cisco"></a>
 
 One of the requirements of many enterprise organisations is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
 
@@ -238,7 +238,7 @@ ssh labuser@10.1.1.5
 
 This attempt will fail - the reason for this is that we do not yet have the correct routing in place to allow connectivity between the On Premises VNet and the Spoke VNets via the hub / NVA. In the next section, we will configure the routing required to achieve this.
 
-## Configure User Defined Routes <a name="udr"></a>
+## 2.3: Configure User Defined Routes <a name="udr"></a>
 
 In this section, we will configured a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
 
@@ -304,9 +304,9 @@ az network vnet subnet update --name Spoke_VNet1-Subnet1 --vnet-name Spoke_Vnet1
 az network vnet subnet update --name Spoke_VNet2-Subnet1 --vnet-name Spoke_Vnet2 --route-table Spoke2_UDR -g VDC-Main
 </pre>
 
-Great, everything is in place - we are no ready to test connectivity between our on-premises environment and the Spoke VNets.
+Great, everything is in place - we are now ready to test connectivity between our on-premises environment and the Spoke VNets.
 
-## Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
+## 2.4: Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
 
 In this section, we'll perform some simple tests to validate connectivity between our "on-premises" environment and the Spoke VNets - this communication should occur through the Cisco CSR router that resides in the Hub VNet.
 
