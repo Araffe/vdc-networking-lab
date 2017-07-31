@@ -153,6 +153,6 @@ At this point, we can start to verify the connectivity we have set up. One of th
 
 Figure 6 shows a diagram explaining what we see when we view the effective routes of OnPrem_VM.
 
-![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes2.JPG "Routing from OnPrem_VM")
+![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/EffectiveRoutes2.jpg "Routing from OnPrem_VM")
 
 **Figure 6:** Routing from OnPrem_VM
