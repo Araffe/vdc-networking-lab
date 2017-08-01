@@ -161,7 +161,8 @@
               "protocol": "Http",
               "port": 3000,
               "intervalInSeconds": 15,
-              "numberOfProbes": 2
+              "numberOfProbes": 2,
+              "requestPath": "/"
             },
             "name": "DemoAppProbe"
           }
