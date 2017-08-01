@@ -214,7 +214,7 @@
         }
       },
       "dependsOn": [
-        "[parameters('vmName')]"
+        "[concat(parameters('vmName'), copyIndex(1))]"
       ],
       "copy": {
         "name": "[concat(parameters('vmName'), '-script')]",
