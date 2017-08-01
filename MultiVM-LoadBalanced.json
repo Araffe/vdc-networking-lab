@@ -52,6 +52,14 @@
     "lbName": {
       "defaultValue": "lb",
       "type": "string"
+    },
+    "scriptURL": {
+      "defaultValue": "https://raw.githubusercontent.com/araffe/vdc-networking-lab/master/DemoAppConfig.sh",
+      "type": "string"
+    },
+    "scriptCommand": {
+      "defaultValue": "sh DemoAppConfig.sh",
+      "type": "string"
     }
   },
   "variables": {
@@ -152,7 +160,7 @@
           "vmSize": "Standard_A0"
         },
         "osProfile": {
-          "computerName": "[parameters('vmName')]",
+          "computerName": "[concat(parameters('vmName'), copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -185,6 +193,31 @@
       },
       "copy": {
         "name": "vmLoop",
+        "count": "[parameters('vmCount')]"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'), copyIndex(1), '/installcustomscript')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[parameters('scriptURL')]"
+          ],
+          "commandToExecute": "[parameters('scriptCommand')]"
+        }
+      },
+      "dependsOn": [
+        "[parameters('vmName')]"
+      ],
+      "copy": {
+        "name": "[concat(parameters('vmName'), '-script')]",
         "count": "[parameters('vmCount')]"
       }
     }
