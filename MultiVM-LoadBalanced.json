@@ -106,7 +106,7 @@
       "name": "[parameters('lbPIPName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       }
     },
     {
@@ -123,15 +123,44 @@
           {
             "name": "LoadBalancerFrontEnd",
             "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('lbPIPName'))]"
-              }
+              "privateIPAllocationMethod": "Dynamic"
             }
           }
         ],
         "backendAddressPools": [
           {
             "name": "BackendPool"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "DemoAppRule",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('lbName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('lbName')), '/backendAddressPools/BackendPool')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('lbName')), '/probes/DemoAppProbe')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 3000,
+              "idleTimeoutInMinutes": 15
+            }
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Http",
+              "port": 3000,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "DemoAppProbe"
           }
         ]
       }
