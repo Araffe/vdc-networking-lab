@@ -123,10 +123,10 @@
           {
             "name": "LoadBalancerFrontEnd",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic"
-            },
-            "subnet": {
-              "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('subnetName'), '1')]"
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('subnetName'), '1')]"
+              }
             }
           }
         ],
