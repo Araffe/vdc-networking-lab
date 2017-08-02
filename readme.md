@@ -22,6 +22,8 @@
 
 - [3.1: Network Security Groups](#nsgsec)
 
+- [3.2: Using Azure Security Center](#seccenter)
+
 **[Lab 4: Monitor the VDC Environment](#monitor)**
 
 - [4.1: Enable Network Watcher](#netwatcher)
@@ -360,10 +362,7 @@ In the next section, we will lock down the environment to ensure that our On Pre
 
 # Lab 3: Secure the VDC Environment <a name="secure"></a>
 
-In this section of the lab, we will use a number of mechanisms to further secure the virtual data centre environment. We will use the following two options to secure traffic from our On Premises virtual network to the applications running on our spoke VNets:
-
-- Traffic filtering / firewalling at the NVA level (in our case the Cisco CSR router) within the Hub VNet.
-- Azure Network Security Groups.
+In this section of the lab, we will use two Azure features to further secure the virtual data centre environment. We will use the *Network Security Group* (NSG) feature to secure traffic from our On Premises virtual network to the applications running on our spoke VNets. In addition, we will explore the *Azure Security Center* to analyse potential security issues in our environment and take action to resolve them.
 
 ## 3.1: Network Security Groups <a name="nsgsec"></a>
 
@@ -425,6 +424,26 @@ curl http://10.1.1.5
 
 You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
 
+## 3.2: Using Azure Security Center <a name="seccenter"></a>
+
+Azure Security Center is a feature built in to Azure which allows administrators to gain visibility into the security of their environment and to detect and respond to issues and threats.
+
+**1)** In the Azure portal, expand the left hand menu and select 'More Services'. Search for and then select 'Seurity Center'.
+
+**2)** The overview section of the Security Center shows an 'at-a-glance' view of any security recommendations, alerts and prevention items relating to compute, storage, networking and applications.
+
+![Azure Security Center](https://github.com/Araffe/vdc-networking-lab/blob/master/SecCenter.jpg "Azure Security Center")
+
+**Figure 12:** Azure Security Center - Overview Page
+
+**3)** Click on 'Recommendations' in the Security Center menu. You will see a list of recommendations relating to various areas of the environment - for example, the need to add Network Security Groups on subnets and VMs, or the recommendation to apply disk encryption to VMs.
+
+![Azure Security Recommendations](https://github.com/Araffe/vdc-networking-lab/blob/master/SecRecommendations.jpg "Azure Security Recommendations")
+
+**Figure 13:** Azure Security Center - Recommendations
+
+**4)** Explore other areas of the Security Center - click through the Compute, Networking and Storage sections to see recommendations specific to these areas.
+
 # Lab 4: Monitor the VDC Environment <a name="monitor"></a>
 
 In this section, we will explore some of the monitoring options we have in Azure and how those can be used to troubleshoot and diagnose issues in a VDC environment. The first tool we will look at is *Network Watcher*. Network Watcher is a collection of tools available to monitor and troubleshoot issues with network connectivity in Azure, including packet capture, NSG flow logs and IP flow verify.
@@ -439,19 +458,19 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 ![Enabling Network Watcher](https://github.com/Araffe/vdc-networking-lab/blob/master/NetWatcher1.jpg "Enabling Network Watcher")
 
-**Figure 11:** Enabling Network Watcher
+**Figure 14:** Enabling Network Watcher
 
 **3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resorce group 'VDC-Main' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
 
 ![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/NetWatcher1.jpg "Network Topology")
 
-**Figure 11:** Network Topology View in Network Watcher
+**Figure 15:** Network Topology View in Network Watcher
 
 **4)** A useful feature of Network Watcher is the ability to view network related subscription limits and track your resource utilisation against these. In the left hand menu, select 'Network Subscription Limit'. You will see a list of resources, including virtual networks, public IP addresses and more:
 
 ![Network Subscription Limits](https://github.com/Araffe/vdc-networking-lab/blob/master/SubLimits.jpg "Network Subscription Limits")
 
-**Figure 12:** Network Related Subscription Limits
+**Figure 16:** Network Related Subscription Limits
 
 ## 4.2: NSG Flow Logs <a name="nsgflowlogs"></a>
 
@@ -469,7 +488,7 @@ az storage account create --name <storage-account-name> -g VDC-Main --sku Standa
 
 ![NSG Flow Log Settings](https://github.com/Araffe/vdc-networking-lab/blob/master/FlowLogs1.jpg "NSG Flow Log Settings")
 
-**Figure 13:** NSG Flow Log Settings
+**Figure 17:** NSG Flow Log Settings
 
 **4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 and attempt to SSH to the same VM (this will fail):
 
@@ -482,7 +501,7 @@ ssh labuser@10.1.1.6
 
 ![NSG Log Download](https://github.com/Araffe/vdc-networking-lab/blob/master/NSGLogs.jpg "NSG Log Download")
 
-**Figure 14:** NSG FLow Log Download
+**Figure 18:** NSG FLow Log Download
 
 **6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 3000 (the port our demo app operates on) from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
 
@@ -524,6 +543,6 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 ![Next Hop Tracking](https://github.com/Araffe/vdc-networking-lab/blob/master/NextHop.jpg "Next Hop Tracking")
 
-**Figure 15:** Next Hop Tracking
+**Figure 19:** Next Hop Tracking
 
 **4)** Try other combinations of IP address / virtual machine. For example, reverse the IP addresses used in the previous step.
