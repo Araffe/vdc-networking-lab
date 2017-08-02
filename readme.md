@@ -6,9 +6,9 @@
 
 **[Initial Lab Setup](#setup)**
 
-**[Lab 1: Explore VDC Environment](#explore)**
+**[Lab 1: Explore the VDC Environment](#explore)**
 
-**[Lab 2: Configure the Environment](#configure)**
+**[Lab 2: Configure the VDC Infrastructure](#configure)**
 
 - [2.1: Configure site-to-site VPN](#vpn)
 
@@ -17,6 +17,10 @@
 - [2.3: Configure User Defined Routes](#udr)
 
 - [2.4: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
+
+**[Lab 3: Secure the VDC Environment](#secure)**
+
+- [3.1: Network Security Groups](#nsgsec)
 
 
 
@@ -63,7 +67,7 @@ az group create -l westeurope -n VDC-Main
 az group create -l westeurope -n VDC-NVA
 </pre>
 
-**3)** Once the resource groups have been deployed, you can deploy the lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets, VPN gateways and third party (Cisco) network virtual appliances (NVAs). Use the following CLI command to deploy the template:
+**3)** Once the resource groups have been deployed, you can deploy the lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets, VPN gateways and third party (Cisco) network virtual appliances (NVAs). The templates also deploy a simple Node.js application on the spoke virtual machines. Use the following CLI command to deploy the template:
 
 <pre lang="...">
 az group deployment create --name VDC-Create -g VDC-Main --template-uri https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/VDC-Networking-Master.json
@@ -113,17 +117,19 @@ In this section of the lab, we will explorer the environment that has been deplo
 
 **Figure 3:** Load Balancer Backend Pools View
 
-**4)** Navigate to the virtual network named *Hub_Vnet* in the *VDC-Main* resource group and then select 'Peerings'. Notice that the hub virtual network has VNet peerings configured with each of the spoke VNets.
+**4)** Under the load balancer, navigate to 'Load Balancing Rules'. Here, you will see that we have a single rule configured (*DemoAppRule*) that maps incoming HTTP requests to port 3000 on the backend (our simple Node.js application listens on port 3000).
+
+**5)** Navigate to the virtual network named *Hub_Vnet* in the *VDC-Main* resource group and then select 'Peerings'. Notice that the hub virtual network has VNet peerings configured with each of the spoke VNets.
 
 ![VNet Peerings](https://github.com/Araffe/vdc-networking-lab/blob/master/VNet-Peerings.JPG "VNet Peerings")
 
 **Figure 4:** Virtual Network Peerings
 
-**5)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
+**6)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
 
 Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
 
-# Lab 2: Configure the Environment <a name="configure"></a>
+# Lab 2: Configure the VDC Infrastructure <a name="configure"></a>
 
 ## 2.1: Configure Site-to-site VPN <a name="vpn"></a>
 
@@ -312,10 +318,10 @@ In this section, we'll perform some simple tests to validate connectivity betwee
 
 **1)** SSH into the virtual machine named *OnPrem-VM1* as you did earlier.
 
-**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (with an IP address of 10.1.1.5):
+**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (e.g. with an IP address of 10.1.1.6):
 
 <pre lang="...">
-ssh labuser@10.1.1.5
+ssh labuser@10.1.1.6
 </pre>
 
 Although we have all the routing we need configured, this connectivity is still failing. Why?
@@ -330,5 +336,82 @@ It turns out that there is an additional setting we must configure on the VNet p
 
 **4)** From within the OnPrem_VM1 virtual machine, try to SSH to the Spoke VM once more. The connection attempt should now succeed.
 
-**5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g.10.2.1.5). This connection should also now succeed.
+**5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g. 10.2.1.6). This connection should also now succeed.
 
+**6)** Still from the OnPrem_VM machine, use the curl command to make an HTTP request to the load balancer private IP address in Spoke1. Note that the IP address *should* be 10.1.1.5, however you may need to verify this in the portal or CLI:
+
+<pre lang="...">
+curl http://10.1.1.5
+<!DOCTYPE html><html><head><title>Node.js Demo App</title><link rel="stylesheet" href="/stylesheets/style.css"></head><body><h1> <img src="images/icon.svg" height="64px" align="absmiddle"><span>&nbsp;Node.js &ndash; Demo Web App</span></h1><h2>&#x1F4BB; System Info...</h2><table> <tr> <td>OS: </td><td>Linux &ndash; v4.4.0-47-generic</td></tr><tr><td>Hostname:</td><td>Spoke1-VM1 </td></tr><tr><td>CPUs: </td><td>1 &times; Intel(R) Xeon(R) CPU E5-2673 v3 @ 2.40GHz</td></tr><tr><td>Memory: </td><td>667 Mb</td></tr><tr><td>Website Name: </td><td>Local</td></tr><tr><td>Node Version: </td><td>v4.2.6         </td></tr></table><h3>&#x1F4E6; Status: Not running as a Docker container &#x1F622;</h3><h2>Microsoft &hearts; Open source</h2><hr><div class="foot">Ben Coleman, 2017 v</div></body></html>
+</pre>
+
+If you try the same request a number of times, you may notice that the response contains either *Spoke1-VM1* or *Spoke1-VM2* as the hostname, as the load balancer has both of these machines in the backend pool.
+
+In the next section, we will lock down the environment to ensure that our On Premises user can only reach the required services.
+
+# Lab 3: Secure the VDC Environment <a name="secure"></a>
+
+In this section of the lab, we will use a number of mechanisms to further secure the virtual data centre environment. We will use the following two options to secure traffic from our On Premises virtual network to the applications running on our spoke VNets:
+
+- Traffic filtering / firewalling at the NVA level (in our case the Cisco CSR router) within the Hub VNet.
+- Azure Network Security Groups.
+
+## 3.1: Network Security Groups <a name="nsgsec"></a>
+
+At the moment, our user in the On Premises VNet is potentially able to access the Spoke 1 & 2 virtual machines on any TCP port - for example, SSH. We want to use Azure Network Security Groups (NSGs) to prevent traffic on any port other than HTTP and port 3000 (the port the application runs on) being allowed into our Spoke VNets.
+
+An NSG is a list of user=defined security rules that allows or denies traffic on specific ports, or to / from specific IP address ranges. An NSG can be applied at two levels: at the virtual machine NIC level, or at a subnet level.
+
+Our NSG will define two rules - one for HTTP and another for TCP port 3000. This NSG will be applied at the subnet level.
+
+**1)** In the Azure portal under the resource group VDC-Main, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Spoke-NSG*.
+
+**2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule. Use the following parameters:
+
+- Name: *Allow-http*
+- Priority: *100*
+- Source port range: *Any*
+- Destination port range: *80*
+- Action: *Allow*
+
+![NSG Rule1](https://github.com/Araffe/vdc-networking-lab/blob/master/NSG1.jpg "NSG Rule1")
+
+**Figure 10:** Network Security Group - HTTP Rule
+
+**3)** Add another rule with the following parameters:
+
+- Name: *Allow-3000*
+- Priority: *110*
+- Source port range: *Any*
+- Destination port range: *3000*
+- Action: *Allow*
+
+**4)** Add one more rule with the following parameters:
+
+- Name: *Deny-All*
+- Priority: *120*
+- Source port range: *Any*
+- Destination port range: *Any*
+- Action: *Deny*
+
+**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke_VNet1' and 'Spoke\_VNet1-Subnet1'.
+
+![NSG Associate Subnet](https://github.com/Araffe/vdc-networking-lab/blob/master/NSG1.jpg "NSG Associate Subnet")
+
+**Figure 11:** Network Security Group - Associating with a Subnet
+
+**6)** SSH into the OnPrem-VM1 virtual machine from your terminal emulator. From this VM, attempt to SSH to the first Spoke1 VM:
+
+<pre lang="...">
+ssh labuser@10.1.1.6
+</pre>
+
+This connection attempt will fail due to the NSG now associated with the Spoke1 subnet.
+
+**7)** From OnPrem_VM1, make sure you can still access the demo app:
+
+<pre lang="...">
+curl http://10.1.1.5
+</pre>'
+
+You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
