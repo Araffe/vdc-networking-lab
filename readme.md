@@ -22,6 +22,14 @@
 
 - [3.1: Network Security Groups](#nsgsec)
 
+**[Lab 4: Monitor the VDC Environment](#monitor)**
+
+- [4.1: Enable Network Watcher](#netwatcher)
+
+- [4.2: NSG Flow Logs](#nsgflowlogs)
+
+- [4.3: Tracing Next Hop Information](#nexthop)
+
 
 
 **[Decommission the lab](#decommission)**
@@ -413,6 +421,87 @@ This connection attempt will fail due to the NSG now associated with the Spoke1 
 
 <pre lang="...">
 curl http://10.1.1.5
-</pre>'
+</pre>
 
 You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
+
+# Lab 4: Monitor the VDC Environment <a name="monitor"></a>
+
+In this section, we will explore some of the monitoring options we have in Azure and how those can be used to troubleshoot and diagnose issues in a VDC environment. The first tool we will look at is *Network Watcher*. Network Watcher is a collection of tools available to monitor and troubleshoot issues with network connectivity in Azure, including packet capture, NSG flow logs and IP flow verify.
+
+## 4.1: Enabling Network Watcher <a name="netwatcher"></a>
+
+Before we can use the tools in this section, we must first enable Network Watcher. To do this, follow these steps:
+
+**1)** In the Azure portal, expand the left hand menu and then click *More Services*. In the filter bar, type 'Network Watcher' and then click on the Network Watcher service.
+
+**2)** You should see your Azure subscription listed in the right hand pane - find your region and then click on the'...' on the right hand side. Click 'Enable Network Watcher':
+
+![Enabling Network Watcher](https://github.com/Araffe/vdc-networking-lab/blob/master/NetWatcher1.jpg "Enabling Network Watcher")
+
+**Figure 11:** Enabling Network Watcher
+
+**3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resorce group 'VDC-Main' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
+
+![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/NetWatcher1.jpg "Network Topology")
+
+**Figure 11:** Network Topology View in Network Watcher
+
+**4)** A useful feature of Network Watcher is the ability to view network related subscription limits and track your resource utilisation against these. In the left hand menu, select 'Network Subscription Limit'. You will see a list of resources, including virtual networks, public IP addresses and more:
+
+![Network Subscription Limits](https://github.com/Araffe/vdc-networking-lab/blob/master/SubLimits.jpg "Network Subscription Limits")
+
+**Figure 12:** Network Related Subscription Limits
+
+## 4.2: NSG Flow Logs <a name="nsgflowlogs"></a>
+
+Network Security Group (NSG) Flow Logs are a feature of Network Watcher that allows you to view information about traffic flowing through a NSG. The logs are written in JSON format and are stored in an Azure storage account that you must designate. In this section, we will enable flow logging for the NSG we configured in the earlier lab and inspect the results.
+
+**1)** To begin with, we need to create a storage account to store the NSG flow logs. Use the following CLI to do this, substituting the storage account name for a unique name of your choice:
+
+<pre lang="...">
+az storage account create --name <storage-account-name> -g VDC-Main --sku Standard_LRS
+</pre>
+
+**2)** Use the Azure portal to navgiate to the Network Watcher section (expand left menu, select 'More Services' and search for 'Network Watcher'). Select 'NSG Flow Logs' from the Network Watcher menu. Filter using your subscription and Resource Group at the top of the page and you should see the NSG we created in the earlier lab.
+
+**3)** Click on the NSG and then in the settings screen, change the status to 'On'. Select the storage account you created in step 1 and change the retention to 5 days. Click 'Save'.
+
+![NSG Flow Log Settings](https://github.com/Araffe/vdc-networking-lab/blob/master/FlowLogs1.jpg "NSG Flow Log Settings")
+
+**Figure 13:** NSG Flow Log Settings
+
+**4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 and attempt to SSH to the same VM (this will fail):
+
+<pre lang="...">
+curl http://10.1.1.5
+ssh labuser@10.1.1.6
+</pre>
+
+**5)** NSG Flow Logs are stored in the storage account you configured earlier in this section - in order to view the logs, you must download the JSON file from Blob storage. You can do this either using the Azure portal, or using the *Microsoft Azure Storage Explorer* program available as a free download from http://storageexplorer.com/. If using the Azure portal, navigate to the storage account you created earlier and select 'Blobs'. You will see a container named 'insights-logs-networksecuritygroupflowevent'. Navigate through the directory structure (structured as sbscription / resource group / day / month / year / time) until you reach a file named 'PT1H.json'. Download this file to your local machine.
+
+![NSG Log Download](https://github.com/Araffe/vdc-networking-lab/blob/master/NSGLogs.jpg "NSG Log Download")
+
+**Figure 14:** NSG FLow Log Download
+
+**6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 3000 (the port our demo app operates on) from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
+
+Here is an example of a relevant JSON entry:
+
+<pre lang="...">
+"rule":"UserRule_Allow-3000","flows":[{"mac":"000D3A25DC84","flowTuples":["1501685102,10.102.1.4,10.1.1.6,56934,3000,T,I,A"
+</pre>
+
+The above entry shows that a flow has hit the user rule named 'Allow-3000' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.6 (one of our Spoke1 VMs), using TCP port 3000. The letters T, I and A signify the following:
+
+**T:** A TCP flow (a 'U' would indicate UDP)
+**I:** An ingress flow (an 'E' would indicate an egress flow)
+**A**: An allowed flow (a 'D' would indicate a denied flow)
+
+ **7)** Search the JSON file for a flow using port 22 (SSH).
+
+<pre lang="...">
+"rule":"UserRule_Deny-All","flows":[{"mac":"000D3A25DC84","flowTuples":["1501684054,10.102.1.4,10.1.1.6,60084,22,T,I,D"
+</pre>
+
+The above example shows a flow that has hit our user defined rule name 'Deny-All'. The source and destination addresses are the same as in the previous example, however the TCP port is 22 (SSH), which is not allowed through the NSG (note the 'D' flag).
