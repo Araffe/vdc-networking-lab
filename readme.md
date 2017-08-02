@@ -478,7 +478,7 @@ curl http://10.1.1.5
 ssh labuser@10.1.1.6
 </pre>
 
-**5)** NSG Flow Logs are stored in the storage account you configured earlier in this section - in order to view the logs, you must download the JSON file from Blob storage. You can do this either using the Azure portal, or using the *Microsoft Azure Storage Explorer* program available as a free download from http://storageexplorer.com/. If using the Azure portal, navigate to the storage account you created earlier and select 'Blobs'. You will see a container named 'insights-logs-networksecuritygroupflowevent'. Navigate through the directory structure (structured as sbscription / resource group / day / month / year / time) until you reach a file named 'PT1H.json'. Download this file to your local machine.
+**5)** NSG Flow Logs are stored in the storage account you configured earlier in this section - in order to view the logs, you must download the JSON file from Blob storage. You can do this either using the Azure portal, or using the *Microsoft Azure Storage Explorer* program available as a free download from http://storageexplorer.com/. If using the Azure portal, navigate to the storage account you created earlier and select 'Blobs'. You will see a container named 'insights-logs-networksecuritygroupflowevent'. Navigate through the directory structure (structured as subscription / resource group / day / month / year / time) until you reach a file named 'PT1H.json'. Download this file to your local machine.
 
 ![NSG Log Download](https://github.com/Araffe/vdc-networking-lab/blob/master/NSGLogs.jpg "NSG Log Download")
 
@@ -494,9 +494,9 @@ Here is an example of a relevant JSON entry:
 
 The above entry shows that a flow has hit the user rule named 'Allow-3000' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.6 (one of our Spoke1 VMs), using TCP port 3000. The letters T, I and A signify the following:
 
-**T:** A TCP flow (a 'U' would indicate UDP)
-**I:** An ingress flow (an 'E' would indicate an egress flow)
-**A**: An allowed flow (a 'D' would indicate a denied flow)
+- **T:** A TCP flow (a 'U' would indicate UDP)
+- **I:** An ingress flow (an 'E' would indicate an egress flow)
+- **A**: An allowed flow (a 'D' would indicate a denied flow)
 
  **7)** Search the JSON file for a flow using port 22 (SSH).
 
@@ -505,3 +505,25 @@ The above entry shows that a flow has hit the user rule named 'Allow-3000' (a ru
 </pre>
 
 The above example shows a flow that has hit our user defined rule name 'Deny-All'. The source and destination addresses are the same as in the previous example, however the TCP port is 22 (SSH), which is not allowed through the NSG (note the 'D' flag).
+
+## 4.3: Tracing Next Hop Information <a name="nexthop"></a>
+
+Another useful feature of Network Watcher is the ability to trace the next hop for a given network destination. As an example, this is useful for diagnosing issues with User Defined Routes.
+
+**1)** Navigate to Network Watcher as described in earlier sections.
+
+**2)** In the left hand menu, select 'Next Hop'. Use the following parameters as input:
+
+- Resource Group: *VDC-Main*
+- Virtual Machine: *Spoke1-VM1*
+- Network Interface: *Spoke1-VM1-nic*
+- Source IP address: *10.1.1.6*
+- Destination IP address: *10.102.1.4*
+
+**3)** The resulting output should display *10.101.1.4* as the next hop. This is the IP address of our Network Virtual Appliance (Cisco CSR) and corresponds to the User Defined Route we configured earlier.
+
+![Next Hop Tracking](https://github.com/Araffe/vdc-networking-lab/blob/master/NextHop.jpg "Next Hop Tracking")
+
+**Figure 15:** Next Hop Tracking
+
+**4)** Try other combinations of IP address / virtual machine. For example, reverse the IP addresses used in the previous step.
