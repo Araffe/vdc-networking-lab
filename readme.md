@@ -32,6 +32,8 @@
 
 - [4.3: Tracing Next Hop Information](#nexthop)
 
+- [4.4: Diagnostics with Azure Monitor](#azmon)
+
 
 
 **[Decommission the lab](#decommission)**
@@ -105,7 +107,7 @@ Once the template deployment has succeeded, you can proceed to the next sections
 
 # Lab 1: Explore VDC Environment <a name="explore"></a>
 
-In this section of the lab, we will explorer the environment that has been deployed to Azure by the ARM templates. The lab environment has the following topology:
+In this section of the lab, we will explore the environment that has been deployed to Azure by the ARM templates. The lab environment has the following topology:
 
 ![Main VDC Image](https://github.com/araffe/vdc-networking-lab/blob/master/images/VDC-Networking-Main.jpg "VDC Environment")
 
@@ -460,7 +462,7 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 **Figure 14:** Enabling Network Watcher
 
-**3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resorce group 'VDC-Main' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
+**3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resource group 'VDC-Main' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
 
 ![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcher1.jpg "Network Topology")
 
@@ -546,3 +548,45 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 **Figure 19:** Next Hop Tracking
 
 **4)** Try other combinations of IP address / virtual machine. For example, reverse the IP addresses used in the previous step.
+
+## 4.4: Diagnostics with Azure Monitor <a name="azmon"></a>
+
+Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will enable diagnostics on a number of resources and use Azure Monitor to view the information collected.
+
+**1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selcting 'Monitor'. If it is not shown, select 'More Services' and search for it. The initial view is the Activity Log. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
+
+![Azure Monitor Activity Log](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMon1.jpg "Azure Monitor Activity Log")
+
+**Figure 20:** Azure Monitor Activity Log
+
+**2)** In the Azure Monitor menu on the left, select 'Metrics'. At the top of the screen, select the 'VDC-Main' resource group and then the 'OnPrem1_VM virtual machine' in the Resource drop-down menu. Under the 'Metrics' menu, select 'Host Percentage CPU' to view the CPU metrics for this VM.
+
+![Azure Monitor CPU Metrics](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonCPU.jpg "Azure Monitor CPU Metrics")
+
+**Figure 21:** Azure Monitor CPU Metrics
+
+**3)** For all types of metric displayed, it is possible to configure alerts when a specific threshold is reached. In the CPU metric view, click on 'Add Metric Alert' at the top of the screen. Use the following parameters to configure the alerting rule:
+
+- Name: *CPUAlert*
+- Threshold: *50%*
+- Period: *Over the last 5 minutes*
+- Email owners, contributors and readers: *Checked*
+
+**4)** SSH to your OnPrem_VM1 virtual machine and install the 'Stress' tool:
+
+<pre lang="...">
+sudo apt-get install stress
+</pre>
+
+**5)** Use the Stress program to hog the CPU:
+
+<pre lang="...">
+stress -c 50
+stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
+</pre>
+
+**6)** After approximately 5 minutes, you should receive an email alerting you to the high CPU on your VM:
+
+![Azure Monitor CPU Alert](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonAlert.jpg "Azure Monitor CPU Alert")
+
+**Figure 22:** Azure Monitor CPU Alert
