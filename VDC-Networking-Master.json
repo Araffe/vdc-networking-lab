@@ -93,7 +93,7 @@
             "vnetName": {
                 "value": "Spoke1_VNet"
             },
-            "spokeVnetOctets": {
+            "vnetOctets": {
                 "value": "10.1"
             }
         },
@@ -101,7 +101,7 @@
             "vnetName": {
                 "value": "Spoke2_VNet"
             },
-            "spokeVnetOctets": {
+            "vnetOctets": {
                 "value": "10.2"
             }
         },        

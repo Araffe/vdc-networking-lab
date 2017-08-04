@@ -2,45 +2,45 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "spokeVnetName": {
+        "vnetName": {
             "defaultValue": "Spoke_VNet",
             "type": "string",
             "metadata": {
                 "description": "Spoke VNet name prefix."
             }
         },
-        "spokeVnetOctets": {
+        "vnetOctets": {
             "defaultValue": "10.1",
             "type": "string",
             "metadata": {
-                "description": "First octet of the spoke vnet IP space. Second octet depends on the VNet instance (1, 2, 3, etc)."
+                "description": "First two octets of the spoke vnet IP space."
             }
         }
     },
     "resources": [
         {
             "comments": "Spoke VNet with 2 subnets",
-            "name": "[concat(parameters('spokeVnetName'))]",
+            "name": "[concat(parameters('vnetName'))]",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2017-06-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[concat(parameters('spokeVnetOctets'), '.0.0/16')]"
+                        "[concat(parameters('vnetOctets'), '.0.0/16')]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[concat(parameters('spokeVnetName'), '-Subnet1')]",
+                        "name": "[concat(parameters('vnetName'), '-Subnet1')]",
                         "properties": {
-                            "addressPrefix": "[concat(parameters('spokeVnetOctets'), '.1.0/24')]"
+                            "addressPrefix": "[concat(parameters('vnetOctets'), '.1.0/24')]"
                         }
                     },
                     {
-                        "name": "[concat(parameters('spokeVnetName'), '-Subnet2')]",
+                        "name": "[concat(parameters('vnetName'), '-Subnet2')]",
                         "properties": {
-                            "addressPrefix": "[concat(parameters('spokeVnetOctets'), '.2.0/24')]"
+                            "addressPrefix": "[concat(parameters('vnetOctets'), '.2.0/24')]"
                         }
                     }
                 ]
