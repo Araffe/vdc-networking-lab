@@ -101,7 +101,7 @@
     },
     {
       "comments": "Create public IP address for load balancer",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2017-06-01",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('lbPIPName')]",
       "location": "[resourceGroup().location]",

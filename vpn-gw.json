@@ -38,7 +38,7 @@
     "resources": [
         {
             "comments": "Create public IP address for VNet GW",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2017-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('PIPName')]",
             "location": "[resourceGroup().location]",
@@ -79,7 +79,10 @@
                 "bgpSettings": {
                     "asn": "[int(parameters('asNumber'))]"
                 }
+            },
+            "dependsOn": [
+                "[parameters('PIPName')]"
+            ]
             }
-        }
-    ]
-}
+        ]
+    }
