@@ -278,6 +278,30 @@
             }
         },
         {
+            "comments": "create VNet peering - Hub_VNet to Spoke_VNet1",
+            "name": "Hub-Spoke1-Peering",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnetPeeringTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "hubVnetName": {
+                        "value": "Hub_VNet"
+                    },
+                    "spokeVnetName": {
+                        "value": "Spoke_VNet1"
+                    }
+                }
+            },
+            "dependsOn": [
+                "vnets"
+            ]
+        },
+        {
             "comments": "Create Spoke2 VNet",
             "name": "spoke2Vnet",
             "type": "Microsoft.Resources/deployments",
