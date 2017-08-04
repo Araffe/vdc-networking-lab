@@ -290,7 +290,7 @@
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet1",
             "name": "Hub-Spoke1-Peering",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -314,7 +314,7 @@
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet2",
             "name": "Hub-Spoke2-Peering",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -338,7 +338,7 @@
             "comments": "create VNet peering - Hub_VNet to Spoke_VNet3",
             "name": "Hub-Spoke3-Peering",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -383,7 +383,7 @@
             "name": "Hub_GW1",
             "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -402,7 +402,7 @@
             "name": "OnPrem_GW1",
             "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -420,7 +420,7 @@
             "comments": "Create two VMs in an availability set with load balancing in Spoke 1 VNet",
             "name": "createSpoke1VMs",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -437,7 +437,7 @@
             "comments": "Create two VMs in an availability set with load balancing in Spoke 2 VNet",
             "name": "createSpoke2VMs",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -454,7 +454,7 @@
             "comments": "Create single VM in on-premises VNet",
             "name": "createOnPremVM",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
