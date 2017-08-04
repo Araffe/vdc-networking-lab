@@ -129,6 +129,9 @@
             "PIPName": {
                 "value": "OnPrem_VNet-gwPip"
             },
+            "RGName": {
+                "value": "VDC-OnPrem"
+            },
             "asNumber": {
                 "value": "65515"
             }
@@ -144,10 +147,10 @@
                 "value": "Spoke1-LB"
             },
             "vnetName": {
-                "value": "Spoke_VNet1"
+                "value": "Spoke1_VNet"
             },
             "subnetName": {
-                "value": "Spoke_VNet1-Subnet"
+                "value": "Spoke1_VNet-Subnet"
             },
             "vmType": {
                 "value": "ubuntu"
@@ -173,10 +176,10 @@
                 "value": "Spoke2-LB"
             },
             "vnetName": {
-                "value": "Spoke_VNet2"
+                "value": "Spoke2_VNet"
             },
             "subnetName": {
-                "value": "Spoke_VNet2-Subnet"
+                "value": "Spoke2_VNet-Subnet"
             },
             "vmType": {
                 "value": "ubuntu"
@@ -319,7 +322,7 @@
             }
         },
         {
-            "comments": "create VNet peering - Hub_VNet to Spoke_VNet1",
+            "comments": "create VNet peering - Hub_VNet to Spoke1_VNet",
             "name": "Hub-Spoke1-Peering",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
@@ -347,7 +350,7 @@
             ]
         },
         {
-            "comments": "create VNet peering - Hub_VNet to Spoke_VNet2",
+            "comments": "create VNet peering - Hub_VNet to Spoke2_VNet",
             "name": "Hub-Spoke2-Peering",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
@@ -375,26 +378,6 @@
             ]
         },
         {
-            "comments": "Create public IP address for VNet GW in Hub_VNet",
-            "apiVersion": "2017-05-10",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "Hub_VNet-gwPip",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-            }
-        },
-        {
-            "comments": "Create public IP address for VNet GW in OnPrem_VNet",
-            "apiVersion": "2017-05-10",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "OnPrem_VNet-gwPip",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-            }
-        },
-        {
             "comments": "Create VPN gateway in Hub_VNet1.",
             "name": "Hub_GW1",
             "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
@@ -416,6 +399,7 @@
         {
             "comments": "Create VPN gateway in OnPrem_VNet1.",
             "name": "OnPrem_GW1",
+            "resourceGroup": "[parameters('onPremRG')]",
             "condition": "[equals(parameters('createVPNGateway'), 'yes')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
@@ -436,6 +420,7 @@
             "comments": "Create two VMs in an availability set with load balancing in Spoke 1 VNet",
             "name": "createSpoke1VMs",
             "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('spoke1RG')]",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
@@ -453,6 +438,7 @@
             "comments": "Create two VMs in an availability set with load balancing in Spoke 2 VNet",
             "name": "createSpoke2VMs",
             "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('spoke2RG')]",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
@@ -470,6 +456,7 @@
             "comments": "Create single VM in on-premises VNet",
             "name": "createOnPremVM",
             "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('onPremRG')]",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
