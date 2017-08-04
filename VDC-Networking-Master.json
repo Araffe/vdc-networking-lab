@@ -334,7 +334,7 @@
                         "value": "Hub_VNet"
                     },
                     "spokeVnetName": {
-                        "value": "Spoke_VNet1"
+                        "value": "Spoke1_VNet"
                     },
                     "spokeRGName": {
                         "value": "VDC-Spoke1"
@@ -362,7 +362,7 @@
                         "value": "Hub_VNet"
                     },
                     "spokeVnetName": {
-                        "value": "Spoke_VNet2"
+                        "value": "Spoke2_VNet"
                     },
                     "spokeRGName": {
                         "value": "VDC-Spoke2"
