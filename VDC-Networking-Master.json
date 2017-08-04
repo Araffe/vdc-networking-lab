@@ -194,35 +194,6 @@
                 "value": "Spoke2-AvailabilitySet"
             }
         },
-        "vmTemplateSpoke3": {
-            "vmName": {
-                "value": "Spoke3-VM"
-            },
-            "lbPIPName": {
-                "value": "Spoke3-LB-PIP"
-            },
-            "lbName": {
-                "value": "Spoke3-LB"
-            },
-            "vnetName": {
-                "value": "Spoke_VNet3"
-            },
-            "subnetName": {
-                "value": "Spoke_VNet3-Subnet"
-            },
-            "vmType": {
-                "value": "ubuntu"
-            },
-            "adminUsername": {
-                "value": "[parameters('adminUsername')]"
-            },
-            "adminPassword": {
-                "value": "[parameters('adminPassword')]"
-            },
-            "availabilitySetName": {
-                "value": "Spoke3-AvailabilitySet"
-            }
-        },
         "vmTemplateOnPrem": {
             "vmName": {
                 "value": "OnPrem-VM1"
@@ -456,7 +427,7 @@
             "comments": "Create single VM in on-premises VNet",
             "name": "createOnPremVM",
             "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('onPremRG')]",
+            "resourceGroup": "VDC-OnPrem",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
