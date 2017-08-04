@@ -2,25 +2,39 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "spokeVnetName": {
-            "defaultValue": "spokeVnet",
+        "spoke1VnetName": {
+            "defaultValue": "Spoke1_Vnet",
             "type": "string",
             "metadata": {
-                "description": "Name of the spoke Vnet"
+                "description": "Name of the spoke 1 Vnet"
+            }
+        },
+        "spoke2VnetName": {
+            "defaultValue": "Spoke2_Vnet",
+            "type": "string",
+            "metadata": {
+                "description": "Name of the spoke 2 Vnet"
             }
         },
         "hubVnetName": {
-            "defaultValue": "hubVnet",
+            "defaultValue": "Hub_VNet",
             "type": "string",
             "metadata": {
                 "description": "Name of the hub Vnet"
             }
         },
-        "spokeRGName": {
-            "defaultValue": "RG",
+        "spoke1RGName": {
+            "defaultValue": "VDC-Spoke1",
             "type": "string",
             "metadata": {
-                "description": "Name of the spoke resource group"
+                "description": "Name of the spoke 1 resource group"
+            }
+        },
+        "spoke2RGName": {
+            "defaultValue": "VDC-Spoke2",
+            "type": "string",
+            "metadata": {
+                "description": "Name of the spoke 2 resource group"
             }
         }
     },
@@ -29,7 +43,7 @@
         {
             "apiVersion": "2016-06-01",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-            "name": "[concat(parameters('hubVnetName'), '/to-', parameters('spokeVnetName'))]",
+            "name": "[concat(parameters('hubVnetName'), '/to-', parameters('spoke1VnetName'))]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "allowVirtualNetworkAccess": true,
@@ -37,22 +51,22 @@
                 "allowGatewayTransit": true,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
-                    "id": "[resourceId(parameters('spokeRGName'), 'Microsoft.Network/virtualNetworks', parameters('spokeVnetName'))]"
+                    "id": "[resourceId(parameters('spoke1RGName'), 'Microsoft.Network/virtualNetworks', parameters('spoke1VnetName'))]"
                 }
             }
         },
         {
             "apiVersion": "2016-06-01",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-            "name": "[concat(parameters('spokeVnetName'), '/to-', parameters('hubVnetName'))]",
+            "name": "[concat(parameters('hubVnetName'), '/to-', parameters('spoke2VnetName'))]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "allowVirtualNetworkAccess": true,
-                "allowForwardedTraffic": true,
-                "allowGatewayTransit": false,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": true,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
+                    "id": "[resourceId(parameters('spoke2RGName'), 'Microsoft.Network/virtualNetworks', parameters('spoke2VnetName'))]"
                 }
             }
         }

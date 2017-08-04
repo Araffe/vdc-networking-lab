@@ -67,7 +67,7 @@
         "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/",
         "hubVnetTemplateURL": "[concat(variables('baseURL'), 'Hub-VNet.json')]",
         "spokeVnetTemplateURL": "[concat(variables('baseURL'), 'Spoke-VNet.json')]",
-        "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
+        "vnetPeeringHubTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering-Hub.json')]",
         "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
         "singleVMTemplateURL": "[concat(variables('baseURL'), 'Single-VM.json')]",
         "multiVMTemplateURL": "[concat(variables('baseURL'), 'MultiVM-LoadBalanced.json')]",
@@ -285,19 +285,8 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vnetPeeringTemplateURL')]",
+                    "uri": "[variables('vnetPeeringHubTemplateURL')]",
                     "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "hubVnetName": {
-                        "value": "Hub_VNet"
-                    },
-                    "spokeVnetName": {
-                        "value": "Spoke_VNet1"
-                    },
-                    "spokeRGName": {
-                        "value": "VDC-Spoke1"
-                    },
                 }
             },
             "dependsOn": [
