@@ -294,7 +294,10 @@
                     },
                     "spokeVnetName": {
                         "value": "Spoke_VNet1"
-                    }
+                    },
+                    "spokeRGName": {
+                        "value": "VDC-Spoke1"
+                    },
                 }
             },
             "dependsOn": [
