@@ -22,7 +22,7 @@
             "comments": "Spoke VNet with 2 subnets",
             "name": "[concat(parameters('spokeVnetName'))]",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2016-03-30",
+            "apiVersion": "2017-05-10",
             "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
