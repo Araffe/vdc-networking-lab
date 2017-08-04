@@ -363,7 +363,6 @@
                 "parameters": "[variables('vpnGwTemplateHub')]"
             },
             "dependsOn": [
-                "Hub_VNet-gwPip",
                 "hubVnet"
             ]
         },
@@ -383,7 +382,6 @@
                 "parameters": "[variables('vpnGwTemplateOnPrem')]"
             },
             "dependsOn": [
-                "OnPrem_VNet-gwPip",
                 "onPremVnet"
             ]
         },
