@@ -360,7 +360,7 @@
         },
         {
             "comments": "Create public IP address for VNet GW in Hub_VNet",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2017-05-10",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "Hub_VNet-gwPip",
             "location": "[resourceGroup().location]",
@@ -370,7 +370,7 @@
         },
         {
             "comments": "Create public IP address for VNet GW in OnPrem_VNet",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2017-05-10",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "OnPrem_VNet-gwPip",
             "location": "[resourceGroup().location]",
