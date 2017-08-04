@@ -16,15 +16,11 @@
                 "description": "Name of the hub Vnet"
             }
         },
-        "useRemoteGateways": {
-            "defaultValue": false,
-            "type": "bool",
-            "allowedValues": [
-                true,
-                false
-            ],
+        "spokeRGName": {
+            "defaultValue": "RG",
+            "type": "string",
             "metadata": {
-                "description": "Required to cope for peerings without VPN gateway"
+                "description": "Name of the spoke resource group"
             }
         }
     },
@@ -39,9 +35,9 @@
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": false,
                 "allowGatewayTransit": true,
-                "useRemoteGateways": "[parameters('useRemoteGateways')]",
+                "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeVnetName'))]"
+                    "id": "[resourceId(parameters('spokeRGName'), 'Microsoft.Network/virtualNetworks', parameters('spokeVnetName'))]"
                 }
             }
         },
@@ -54,7 +50,7 @@
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": true,
                 "allowGatewayTransit": false,
-                "useRemoteGateways": "[parameters('useRemoteGateways')]",
+                "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
                     "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
                 }

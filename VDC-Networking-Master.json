@@ -104,7 +104,7 @@
             "vnetOctets": {
                 "value": "10.2"
             }
-        },        
+        },
         "vpnGwTemplateHub": {
             "vnetName": {
                 "value": "Hub_VNet"
@@ -335,6 +335,9 @@
                     },
                     "spokeVnetName": {
                         "value": "Spoke_VNet1"
+                    },
+                    "spokeRGName": {
+                        "value": "VDC-Spoke1"
                     }
                 }
             },
@@ -360,6 +363,9 @@
                     },
                     "spokeVnetName": {
                         "value": "Spoke_VNet2"
+                    },
+                    "spokeRGName": {
+                        "value": "VDC-Spoke2"
                     }
                 }
             },
