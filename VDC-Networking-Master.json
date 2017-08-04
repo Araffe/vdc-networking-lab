@@ -298,7 +298,8 @@
                 }
             },
             "dependsOn": [
-                "vnets"
+                "spoke1Vnet",
+                "hubVnet"
             ]
         },
         {
