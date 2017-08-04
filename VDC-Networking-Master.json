@@ -247,8 +247,7 @@
             "comments": "Create Hub VNet",
             "name": "hubVnet",
             "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('hubRG')]",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -262,7 +261,7 @@
             "name": "spoke1Vnet",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('spoke1RG')]",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -277,7 +276,7 @@
             "name": "spoke2Vnet",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('spoke2RG')]",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
