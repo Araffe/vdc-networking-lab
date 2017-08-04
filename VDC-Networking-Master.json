@@ -44,7 +44,7 @@
                 "description": "Resource group name for On-Premises"
             }
         },
-        "onPremRG": {
+        "nvaRG": {
             "defaultValue": "VDC-NVA",
             "type": "string",
             "metadata": {
@@ -73,6 +73,22 @@
         "multiVMTemplateURL": "[concat(variables('baseURL'), 'MultiVM-LoadBalanced.json')]",
         "dummyTemplateURL": "[concat(variables('baseURL'), 'Nothing.json')]",
         "nvaTemplateURL": "[concat(variables('baseURL'), 'Deploy-NVAs.json')]",
+        "hubVnetTemplate": {
+            "vnetName": {
+                "value": "Hub_VNet"
+            },
+            "vnetOctets": {
+                "value": "10.101"
+            }
+        },
+        "onPremVnetTemplate": {
+            "vnetName": {
+                "value": "OnPrem_VNet"
+            },
+            "vnetOctets": {
+                "value": "10.102"
+            }
+        },
         "spoke1VnetTemplate": {
             "vnetName": {
                 "value": "Spoke1_VNet"
@@ -253,7 +269,23 @@
                 "templateLink": {
                     "uri": "[variables('hubVnetTemplateURL')]",
                     "contentVersion": "1.0.0.0"
-                }
+                },
+                "parameters": "[variables('hubVnetTemplate')]"
+            }
+        },
+        {
+            "comments": "Create OnPremises VNet",
+            "name": "onPremVnet",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('onPremRG')]",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('hubVnetTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('onPremVnetTemplate')]"
             }
         },
         {
@@ -307,7 +339,8 @@
                 }
             },
             "dependsOn": [
-                "vnets"
+                "hubVnet",
+                "spoke1Vnet"
             ]
         },
         {
@@ -331,31 +364,8 @@
                 }
             },
             "dependsOn": [
-                "vnets"
-            ]
-        },
-        {
-            "comments": "create VNet peering - Hub_VNet to Spoke_VNet3",
-            "name": "Hub-Spoke3-Peering",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('vnetPeeringTemplateURL')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "hubVnetName": {
-                        "value": "Hub_VNet"
-                    },
-                    "spokeVnetName": {
-                        "value": "Spoke_VNet3"
-                    }
-                }
-            },
-            "dependsOn": [
-                "vnets"
+                "hubVnet",
+                "spoke2Vnet"
             ]
         },
         {
@@ -394,7 +404,7 @@
             },
             "dependsOn": [
                 "Hub_VNet-gwPip",
-                "vnets"
+                "hubVnet"
             ]
         },
         {
@@ -413,7 +423,7 @@
             },
             "dependsOn": [
                 "OnPrem_VNet-gwPip",
-                "vnets"
+                "onPremVnet"
             ]
         },
         {
@@ -430,7 +440,7 @@
                 "parameters": "[variables('vmTemplateSpoke1')]"
             },
             "dependsOn": [
-                "vnets"
+                "spoke1Vnet"
             ]
         },
         {
@@ -447,7 +457,7 @@
                 "parameters": "[variables('vmTemplateSpoke2')]"
             },
             "dependsOn": [
-                "vnets"
+                "spoke2Vnet"
             ]
         },
         {
@@ -464,14 +474,14 @@
                 "parameters": "[variables('vmTemplateOnPrem')]"
             },
             "dependsOn": [
-                "vnets"
+                "onPremVnet"
             ]
         },
         {
             "comments": "Create Cisco CSR router in Hub VNet",
             "name": "createNVAs",
             "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "VDC-NVA",
+            "resourceGroup": "[parameters('nvaRG')]",
             "apiVersion": "2017-05-10",
             "properties": {
                 "mode": "Incremental",
@@ -482,7 +492,7 @@
                 "parameters": "[variables('nvaTemplate')]"
             },
             "dependsOn": [
-                "vnets"
+                "hubVnet"
             ]
         }
     ]

@@ -2,11 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "spokeVnetNamePrefix": {
+        "vnetName": {
             "defaultValue": "Hub_VNet",
             "type": "string",
             "metadata": {
-                "description": "Spoke VNet name prefix."
+                "description": "VNet name prefix."
+            }
+        },
+        "vnetOctets": {
+            "defaultValue": "10.101",
+            "type": "string",
+            "metadata": {
+                "description": "First two octets of the VNet IP space."
             }
         }
     },
@@ -20,26 +27,26 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.101.0.0/16"
+                        "[concat(parameters('vnetOctets'), '.0.0/16')]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "Hub_VNet-Subnet1",
+                        "name": "[concat(parameters('vnetName'), '-Subnet1')]",
                         "properties": {
-                            "addressPrefix": "10.101.1.0/24"
+                            "addressPrefix": "[concat(parameters('vnetOctets'), '.1.0/24')]"
                         }
                     },
                     {
-                        "name": "Hub_VNet-Subnet2",
+                        "name": "[concat(parameters('vnetName'), '-Subnet2')]",
                         "properties": {
-                            "addressPrefix": "10.101.2.0/24"
+                            "addressPrefix": "[concat(parameters('vnetOctets'), '.2.0/24')]"
                         }
                     },
                     {
                         "name": "GatewaySubnet",
                         "properties": {
-                            "addressPrefix": "10.101.3.0/24"
+                            "addressPrefix": "[concat(parameters('vnetOctets'), '.3.0/24')]"
                         }
                     }
                 ]
