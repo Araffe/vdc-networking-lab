@@ -45,6 +45,7 @@
             "apiVersion": "2016-06-01",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
             "name": "[concat(parameters('spokeVnetName'), '/to-', parameters('hubVnetName'))]",
+            "id": "[resourceId(parameters('spokeRGName'),'Microsoft.Network/virtualNetworks', parameters('spokeVnetName'))]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "allowVirtualNetworkAccess": true,
