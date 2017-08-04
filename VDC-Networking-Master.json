@@ -16,6 +16,41 @@
                 "description": "Password for VMs"
             }
         },
+        "hubRG": {
+            "defaultValue": "VDC-Hub",
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name for Hub"
+            }
+        },
+        "spoke1RG": {
+            "defaultValue": "VDC-Spoke1",
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name for Spoke1"
+            }
+        },
+        "spoke2RG": {
+            "defaultValue": "VDC-Spoke2",
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name for Spoke2"
+            }
+        },
+        "onPremRG": {
+            "defaultValue": "VDC-OnPrem",
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name for On-Premises"
+            }
+        },
+        "onPremRG": {
+            "defaultValue": "VDC-NVA",
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name for NVA deployment"
+            }
+        },
         "createVPNGateway": {
             "defaultValue": "yes",
             "type": "string",
@@ -30,13 +65,30 @@
     },
     "variables": {
         "baseURL": "https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/",
-        "vnetTemplateURL": "[concat(variables('baseURL'), 'vdc-vnets.json')]",
+        "hubVnetTemplateURL": "[concat(variables('baseURL'), 'Hub-VNet.json')]",
+        "spokeVnetTemplateURL": "[concat(variables('baseURL'), 'Spoke-VNet.json')]",
         "vnetPeeringTemplateURL": "[concat(variables('baseURL'), 'VNet-Peering.json')]",
         "vpnGwTemplateURL": "[concat(variables('baseURL'), 'vpn-gw.json')]",
         "singleVMTemplateURL": "[concat(variables('baseURL'), 'Single-VM.json')]",
         "multiVMTemplateURL": "[concat(variables('baseURL'), 'MultiVM-LoadBalanced.json')]",
         "dummyTemplateURL": "[concat(variables('baseURL'), 'Nothing.json')]",
         "nvaTemplateURL": "[concat(variables('baseURL'), 'Deploy-NVAs.json')]",
+        "spoke1VnetTemplate": {
+            "vnetName": {
+                "value": "Spoke1_VNet"
+            },
+            "spokeVnetOctets": {
+                "value": "10.1"
+            }
+        },
+        "spoke2VnetTemplate": {
+            "vnetName": {
+                "value": "Spoke2_VNet"
+            },
+            "spokeVnetOctets": {
+                "value": "10.2"
+            }
+        },        
         "vpnGwTemplateHub": {
             "vnetName": {
                 "value": "Hub_VNet"
@@ -192,16 +244,47 @@
     },
     "resources": [
         {
-            "comments": "Create 5 VNets - 1 hub, 3 spokes and 1 on-premise",
-            "name": "vnets",
+            "comments": "Create Hub VNet",
+            "name": "hubVnet",
             "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('hubRG')]",
             "apiVersion": "2016-06-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vnetTemplateURL')]",
+                    "uri": "[variables('hubVnetTemplateURL')]",
                     "contentVersion": "1.0.0.0"
                 }
+            }
+        },
+        {
+            "comments": "Create Spoke1 VNet",
+            "name": "spoke1Vnet",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('spoke1RG')]",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('spokeVnetTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('spoke1VnetTemplate')]"
+            }
+        },
+        {
+            "comments": "Create Spoke2 VNet",
+            "name": "spoke2Vnet",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('spoke2RG')]",
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('spokeVnetTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('spoke2VnetTemplate')]"
             }
         },
         {

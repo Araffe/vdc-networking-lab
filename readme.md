@@ -32,9 +32,9 @@
 
 - [4.3: Tracing Next Hop Information](#nexthop)
 
-- [4.4: Diagnostics with Azure Monitor](#azmon)
+- [4.4: Metrics and Alerts with Azure Monitor](#azmonalert)
 
-
+- [4.5: Diagnostics with Azure Monitor](#azmondiag)
 
 **[Decommission the lab](#decommission)**
 
@@ -549,9 +549,9 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 **4)** Try other combinations of IP address / virtual machine. For example, reverse the IP addresses used in the previous step.
 
-## 4.4: Diagnostics with Azure Monitor <a name="azmon"></a>
+## 4.4: Metrics and Alerts with Azure Monitor <a name="azmonalert"></a>
 
-Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will enable diagnostics on a number of resources and use Azure Monitor to view the information collected.
+Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will use Azure monitor to look at metrics on a resource and create an alert to receive an email when a CPU threshold is crossed.
 
 **1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selcting 'Monitor'. If it is not shown, select 'More Services' and search for it. The initial view is the Activity Log. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
 
@@ -590,3 +590,14 @@ stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
 ![Azure Monitor CPU Alert](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonAlert.jpg "Azure Monitor CPU Alert")
 
 **Figure 22:** Azure Monitor CPU Alert
+
+**7)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
+
+# Decommission the Lab <a name="decommission"></a>
+
+To decommission the VDC lab, simply remove the two resource groups using the following commands:
+
+<pre lang="...">
+az group delete -g VDC-Main
+az group delete -g VDC-NVA
+</pre>

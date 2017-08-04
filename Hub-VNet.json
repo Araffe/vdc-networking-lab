@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "spokeVnetNamePrefix": {
+            "defaultValue": "Hub_VNet",
+            "type": "string",
+            "metadata": {
+                "description": "Spoke VNet name prefix."
+            }
+        }
+    },
+    "resources": [
+        {
+            "comments": "Hub VNet with 2 subnets",
+            "name": "Hub_VNet",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.101.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Hub_VNet-Subnet1",
+                        "properties": {
+                            "addressPrefix": "10.101.1.0/24"
+                        }
+                    },
+                    {
+                        "name": "Hub_VNet-Subnet2",
+                        "properties": {
+                            "addressPrefix": "10.101.2.0/24"
+                        }
+                    },
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.101.3.0/24"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
