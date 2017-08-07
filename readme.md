@@ -12,13 +12,11 @@
 
 - [2.1: Configure site-to-site VPN](#vpn)
 
-- [2.2: Configure Virtual Network Peerings](#vnetpeer)
+- [2.2: Configure Cisco CSR1000V](#cisco)
 
-- [2.3: Configure Cisco CSR1000V](#cisco)
+- [2.3: Configure User Defined Routes](#udr)
 
-- [2.4: Configure User Defined Routes](#udr)
-
-- [2.5: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
+- [2.4: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
 
 **[Lab 3: Secure the VDC Environment](#secure)**
 
@@ -38,6 +36,14 @@
 
 - [4.5: Diagnostics with Azure Monitor](#azmondiag)
 
+**[Lab 5: Identity in the VDC Environment](#identity)**
+
+- [5.1: Configure Users and Groups](#usersgroups)
+
+- [5.2: Assign Users and Roles to Resource Groups](#roles)
+
+- [5.3: Test User and Group Access](#useraccess)
+
 **[Decommission the lab](#decommission)**
 
 **[Conclusion](#conclusion)**
@@ -56,6 +62,26 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 
 - A valid subscription to Azure. If you don't currently have a subscription, consider setting up a free trial (https://azure.microsoft.com/en-gb/free/)
 - Access to the Azure CLI 2.0. You can achieve this in one of two ways: either by installing the CLI on the Windows 10 Bash shell (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), or by using the built-in Cloud Shell in the Azure portal - you can access this by clicking on the ">_" symbol in the top right corner of the portal.
+
+**Important: Deploying a third party virtual appliance (such as the Cisco CSR router we will use in this lab) programmatically is not possible until you have accepted the legal agreement. At the time of writing, the only way to do this is to create the virtual appliance through the Azure portal and subsequently delete it. You *must* do this first before attempting to deploy the lab environment through the ARM templates. To do this, follow these steps:**
+
+**1)** Using the Azure portal, click on the 'Add' button on the top left of the screen. Search for 'Resource Group' and then select 'Create'. Name the resource group 'NVA-Legal'.
+
+**2)** Click the 'Add' button again, but this time search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 2 NICs' and then select create.
+
+**3)** Name the virtual machine 'NVA-Legal' and use the username and password *labuser / M1crosoft123*. Select the resource group you created in step 1 (NVA-Legal).
+
+**4)** In the next step, select 'storage account' and create a storage account with a unique name (you will receive an error if the name is not unique).
+
+**5)** Select 'Public IP' and give the IP address any name (e.g. 'test').
+
+**6)** Assign a unique DNS label (you will receive an error if the name is not unique).
+
+**7)** Click on 'subnets' and accept the default options.
+
+**8)** Select 'OK' until the virtual appliance starts to deploy. Wait for the deployment to finish.
+
+**9)** When the virtual appliance deployment has completed, delete the entire 'NVA-Legal' resource group by navigating to the resource group overview and selecting 'delete'.
 
 # Initial Lab Setup <a name="setup"></a>
 
@@ -93,12 +119,13 @@ az group deployment create --name VDC-Create -g VDC-Hub --template-uri https://r
 The template deployment process will take approximately 45 minutes. You can monitor the progress of the deployment from the portal (navigate to the *VDC-Hub* resource group and click on *Deployments* at the top of the Overview blade). Alternatively, the CLI can be used to monitor the template deployment progress as follows:
 
 <pre lang="...">
-<b>az group deployment list -g VDC-Hub -o table
-Name        Timestamp                         State
-----------  --------------------------------  ---------
-hubVnet     2017-08-04T14:45:06.565300+00:00  Succeeded
-Hub_GW1     2017-08-04T15:10:40.068664+00:00  Succeeded
-VDC-Create  2017-08-04T15:12:36.937179+00:00  Succeeded
+<b>az group deployment list -g VDC-Hub -o table</b>
+Name               Timestamp                         State
+-----------------  --------------------------------  ---------
+hubVnet            2017-08-07T08:02:09.623941+00:00  Succeeded
+Hub-Spoke-Peering  2017-08-07T08:02:23.784459+00:00  Succeeded
+Hub_GW1            2017-08-07T08:27:42.052311+00:00  Succeeded
+VDC-Create         2017-08-07T08:30:02.786296+00:00  Succeeded
 </pre>
 
 Once the template deployment has succeeded, you can proceed to the next sections of the lab.
@@ -115,7 +142,7 @@ Note that each of the virtual networks resides in its own Azure resource group. 
 
 **1)** Use the Azure portal to explore the resources that have been created for you. Navigate to the various resource groups in turn to get an overall view of the resources deployed.
 
-![VDC-Spoke1 Resource Group Image](https://github.com/Araffe/vdc-networking-lab/blob/master/images/VDC-Spoke1.JPG "VDC-Spoke1 Resource Group")
+![VDC-Spoke1 Resource Group Image](https://github.com/Araffe/vdc-networking-lab/blob/master/images/VDC-Spoke1-RG.jpg "VDC-Spoke1 Resource Group")
 
 **Figure 2:** VDC-Spoke1 Resource Group View
 
@@ -161,33 +188,21 @@ At this point, we can start to verify the connectivity we have set up. One of th
 
 **6)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-OnPrem resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
 
-**7)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see an entry for 'virtual network gateway', specifying an address range of 10.101.0.0/16, as shown in figure 5.
+**7)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see an entry for 'virtual network gateway', specifying an address range of 10.101.0.0/16, as shown in figure 4.
 
 ![Effective Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/images/EffectiveRoutes1.JPG "Effective Routes")
 
-**Figure 5:** OnPrem_VM Effective Routes
+**Figure 4:** OnPrem_VM Effective Routes
 
-Figure 6 shows a diagram explaining what we see when we view the effective routes of OnPrem_VM.
+Figure 5 shows a diagram explaining what we see when we view the effective routes of OnPrem_VM.
 
 ![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/images/EffectiveRoutes2.jpg "Routing from OnPrem_VM")
 
-**Figure 6:** Routing from OnPrem_VM
-
-Next, we'll configure the peerings between our Hub and Spoke virtual networks.
-
-## 2.2: Configure Virtual Network Peerings <a name="vnetpeer"></a>
-
-The environment that has been deployed has one Hub virtual network (VNet) and two Spoke VNets. At the moment however, those VNets do not have any kind of 'peering' relationship with each other, therefore no communication can occur between them. In this section, we will add VNet peerings between the Hub VNet and each Spoke.
-
-**1)** Using the Azure CLI, add the VNet peering connections on the Hub side:
-
-<pre lang="...">
-
- </pre>
+**Figure 5:** Routing from OnPrem_VM
 
 Next, let's move on to configuring our Cisco Network Virtual Appliances.
 
-## 2.3: Configure Cisco CSR1000V <a name="cisco"></a>
+## 2.2: Configure Cisco CSR1000V <a name="cisco"></a>
 
 One of the requirements of many enterprise organisations is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
 
@@ -239,7 +254,7 @@ GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
 **6)** Find the public IP address of the virtual machine named *OnPrem_VM* using the following command:
 
 <pre lang="...">
-az network public-ip list -g VDC-Main -o table
+az network public-ip list -g VDC-OnPrem -o table
 </pre>
 
 **7)** SSH to the public IP of OnPrem_VM. From within the VM, attempt to connect to the private IP address of one of the CSR1000V interfaces (10.101.1.4):
@@ -248,7 +263,7 @@ az network public-ip list -g VDC-Main -o table
 ssh labuser@10.101.1.4
 </pre>
 
-This step should succeed, which proves connectivity between the On Premises and Hub VNets using the VPN connection. Figure 7 shows the connection we have just made.
+This step should succeed, which proves connectivity between the On Premises and Hub VNets using the VPN connection. Figure 6 shows the connection we have just made.
 
 ![SSH to NVA](https://github.com/Araffe/vdc-networking-lab/blob/master/images/SSHtoNVA.jpg "SSH to NVA")
 
@@ -262,7 +277,7 @@ ssh labuser@10.1.1.5
 
 This attempt will fail - the reason for this is that we do not yet have the correct routing in place to allow connectivity between the On Premises VNet and the Spoke VNets via the hub / NVA. In the next section, we will configure the routing required to achieve this.
 
-## 2.4: Configure User Defined Routes <a name="udr"></a>
+## 2.3: Configure User Defined Routes <a name="udr"></a>
 
 In this section, we will configured a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
 
@@ -272,7 +287,7 @@ In this section, we will configured a number of *User Defined Routes*. A UDR in 
 
 We'll create our first User Define Route using the Azure portal, with subsequent UDRs configured using the Azure CLI.
 
-**1)** In the Azure portal, navigate to the *VDC-Main* resource group. Click 'Add' and then search for 'Route Table'. Select this and then create a new route table named *OnPrem-UDR*. Once complete, navigate to the newly created UDR in the VDC-Main resource group and select it.
+**1)** In the Azure portal, navigate to the *VDC-OnPrem* resource group. Click 'Add' and then search for 'Route Table'. Select this and then create a new route table named *OnPrem-UDR*. Once complete, navigate to the newly created UDR in the VDC-OnPrem resource group and select it.
 
 **2)** Click on 'Routes' and then 'Add'. Create a new route with the following parameters:
 
@@ -299,54 +314,54 @@ We'll now switch to the Azure CLI to define the rest of the UDRs that we need.
 **4)** Create the UDR for the Hub Vnet (GatewaySubnet):
 
 <pre lang="...">
-az network route-table create --name Hub_UDR -g VDC-Main
+az network route-table create --name Hub_UDR -g VDC-Hub
 </pre>
 
 **5)** Create the routes to point to Spoke1 and Spoke2, via the Cisco CSR router:
 
 <pre lang="...">
-az network route-table route create --name Spoke1-Route --address-prefix 10.1.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Main
-az network route-table route create --name Spoke2-Route --address-prefix 10.2.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Main
+az network route-table route create --name Spoke1-Route --address-prefix 10.1.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Hub
+az network route-table route create --name Spoke2-Route --address-prefix 10.2.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.1.4 --route-table-name Hub_UDR -g VDC-Hub
 </pre>
 
 **6)** Associate the UDR with the GatewaySubnet inside the Hub Vnet:
 
 <pre lang="...">
-az network vnet subnet update --name Hub_Vnet-Subnet1 --vnet-name Hub_Vnet --route-table Hub_UDR -g VDC-Main
+az network vnet subnet update --name Hub_Vnet-Subnet1 --vnet-name Hub_Vnet --route-table Hub_UDR -g VDC-Hub
 </pre>
 
 **7)** Configure the UDRs for the Spoke VNets, with relevant routes and associate to the subnets:
 
 <pre lang="...">
-az network route-table create --name Spoke1_UDR -g VDC-Main
-az network route-table create --name Spoke2_UDR -g VDC-Main
+az network route-table create --name Spoke1_UDR -g VDC-Spoke1
+az network route-table create --name Spoke2_UDR -g VDC-Spoke2
 
-az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke1_UDR -g VDC-Main
-az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke2_UDR -g VDC-Main
+az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke1_UDR -g VDC-Spoke1
+az network route-table route create --name OnPrem-Route --address-prefix 10.102.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.101.2.4 --route-table-name Spoke2_UDR -g VDC-Spoke2
 
-az network vnet subnet update --name Spoke_VNet1-Subnet1 --vnet-name Spoke_Vnet1 --route-table Spoke1_UDR -g VDC-Main
-az network vnet subnet update --name Spoke_VNet2-Subnet1 --vnet-name Spoke_Vnet2 --route-table Spoke2_UDR -g VDC-Main
+az network vnet subnet update --name Spoke1_VNet-Subnet1 --vnet-name Spoke1_Vnet --route-table Spoke1_UDR -g VDC-Spoke1
+az network vnet subnet update --name Spoke2_VNet-Subnet1 --vnet-name Spoke2_Vnet --route-table Spoke2_UDR -g VDC-Spoke2
 </pre>
 
 Great, everything is in place - we are now ready to test connectivity between our on-premises environment and the Spoke VNets.
 
-## 2.5: Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
+## 2.4: Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
 
 In this section, we'll perform some simple tests to validate connectivity between our "on-premises" environment and the Spoke VNets - this communication should occur through the Cisco CSR router that resides in the Hub VNet.
 
 **1)** SSH into the virtual machine named *OnPrem-VM1* as you did earlier.
 
-**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (e.g. with an IP address of 10.1.1.6):
+**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (e.g. with an IP address of 10.1.1.5):
 
 <pre lang="...">
-ssh labuser@10.1.1.6
+ssh labuser@10.1.1.5
 </pre>
 
 Although we have all the routing we need configured, this connectivity is still failing. Why?
 
 It turns out that there is an additional setting we must configure on the VNet peerings to allow this type of hub and spoke connectivity to happen. Follow these steps to make the required changes:
 
-**3)** In the Azure portal, navigate to *Spoke_VNet1* in the 'VDC-Main' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
+**3)** In the Azure portal, navigate to *Spoke_VNet1* in the 'VDC-Spoke1' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
 
 ![Use Remote GW](https://github.com/Araffe/vdc-networking-lab/blob/master/images/UseRemoteGW.JPG "Use Remote GW")
 
@@ -354,12 +369,12 @@ It turns out that there is an additional setting we must configure on the VNet p
 
 **4)** From within the OnPrem_VM1 virtual machine, try to SSH to the Spoke VM once more. The connection attempt should now succeed.
 
-**5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g. 10.2.1.6). This connection should also now succeed.
+**5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g. 10.2.1.5). This connection should also now succeed.
 
-**6)** Still from the OnPrem_VM machine, use the curl command to make an HTTP request to the load balancer private IP address in Spoke1. Note that the IP address *should* be 10.1.1.5, however you may need to verify this in the portal or CLI:
+**6)** Still from the OnPrem_VM machine, use the curl command to make an HTTP request to the load balancer private IP address in Spoke1. Note that the IP address *should* be 10.1.1.4, however you may need to verify this in the portal or CLI:
 
 <pre lang="...">
-curl http://10.1.1.5
+curl http://10.1.1.4
 </pre>
 
 This command should return an HTML page showing some information, such as the page title, the hostname, system info and whether the application is running inside a container or not.
@@ -370,7 +385,7 @@ In the next section, we will lock down the environment to ensure that our On Pre
 
 # Lab 3: Secure the VDC Environment <a name="secure"></a>
 
-In this section of the lab, we will use two Azure features to further secure the virtual data centre environment. We will use the *Network Security Group* (NSG) feature to secure traffic from our On Premises virtual network to the applications running on our spoke VNets. In addition, we will explore the *Azure Security Center* to analyse potential security issues in our environment and take action to resolve them.
+In this section of the lab, we will use Azure features to further secure the virtual data centre environment. We will use the *Network Security Group* (NSG) feature to secure traffic from our On Premises virtual network to the applications running on our spoke VNets. In addition, we will explore the *Azure Security Center* to analyse potential security issues in our environment and take action to resolve them.
 
 ## 3.1: Network Security Groups <a name="nsgsec"></a>
 
@@ -380,7 +395,7 @@ An NSG is a list of user=defined security rules that allows or denies traffic on
 
 Our NSG will define two rules - one for HTTP and another for TCP port 3000. This NSG will be applied at the subnet level.
 
-**1)** In the Azure portal under the resource group VDC-Main, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Spoke-NSG*.
+**1)** In the Azure portal under the resource group VDC-Spoke1, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Spoke-NSG*.
 
 **2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule. Use the following parameters:
 
@@ -468,7 +483,7 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 **Figure 14:** Enabling Network Watcher
 
-**3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resource group 'VDC-Main' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
+**3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resource group 'VDC-Hub' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
 
 ![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcher1.jpg "Network Topology")
 
@@ -487,7 +502,7 @@ Network Security Group (NSG) Flow Logs are a feature of Network Watcher that all
 **1)** To begin with, we need to create a storage account to store the NSG flow logs. Use the following CLI to do this, substituting the storage account name for a unique name of your choice:
 
 <pre lang="...">
-az storage account create --name <storage-account-name> -g VDC-Main --sku Standard_LRS
+az storage account create --name <storage-account-name> -g VDC-Hub --sku Standard_LRS
 </pre>
 
 **2)** Use the Azure portal to navgiate to the Network Watcher section (expand left menu, select 'More Services' and search for 'Network Watcher'). Select 'NSG Flow Logs' from the Network Watcher menu. Filter using your subscription and Resource Group at the top of the page and you should see the NSG we created in the earlier lab.
@@ -498,11 +513,11 @@ az storage account create --name <storage-account-name> -g VDC-Main --sku Standa
 
 **Figure 17:** NSG Flow Log Settings
 
-**4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 and attempt to SSH to the same VM (this will fail):
+**4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 (through the load balancer) and attempt to SSH to the same VM (this will fail):
 
 <pre lang="...">
-curl http://10.1.1.5
-ssh labuser@10.1.1.6
+curl http://10.1.1.4
+ssh labuser@10.1.1.5
 </pre>
 
 **5)** NSG Flow Logs are stored in the storage account you configured earlier in this section - in order to view the logs, you must download the JSON file from Blob storage. You can do this either using the Azure portal, or using the *Microsoft Azure Storage Explorer* program available as a free download from http://storageexplorer.com/. If using the Azure portal, navigate to the storage account you created earlier and select 'Blobs'. You will see a container named 'insights-logs-networksecuritygroupflowevent'. Navigate through the directory structure (structured as subscription / resource group / day / month / year / time) until you reach a file named 'PT1H.json'. Download this file to your local machine.
@@ -516,10 +531,10 @@ ssh labuser@10.1.1.6
 Here is an example of a relevant JSON entry:
 
 <pre lang="...">
-"rule":"UserRule_Allow-3000","flows":[{"mac":"000D3A25DC84","flowTuples":["1501685102,10.102.1.4,10.1.1.6,56934,3000,T,I,A"
+"rule":"UserRule_Allow-3000","flows":[{"mac":"000D3A25DC84","flowTuples":["1501685102,10.102.1.4,10.1.1.5,56934,3000,T,I,A"
 </pre>
 
-The above entry shows that a flow has hit the user rule named 'Allow-3000' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.6 (one of our Spoke1 VMs), using TCP port 3000. The letters T, I and A signify the following:
+The above entry shows that a flow has hit the user rule named 'Allow-3000' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.5 (one of our Spoke1 VMs), using TCP port 3000. The letters T, I and A signify the following:
 
 - **T:** A TCP flow (a 'U' would indicate UDP)
 - **I:** An ingress flow (an 'E' would indicate an egress flow)
@@ -528,7 +543,7 @@ The above entry shows that a flow has hit the user rule named 'Allow-3000' (a ru
  **7)** Search the JSON file for a flow using port 22 (SSH).
 
 <pre lang="...">
-"rule":"UserRule_Deny-All","flows":[{"mac":"000D3A25DC84","flowTuples":["1501684054,10.102.1.4,10.1.1.6,60084,22,T,I,D"
+"rule":"UserRule_Deny-All","flows":[{"mac":"000D3A25DC84","flowTuples":["1501684054,10.102.1.4,10.1.1.5,60084,22,T,I,D"
 </pre>
 
 The above example shows a flow that has hit our user defined rule name 'Deny-All'. The source and destination addresses are the same as in the previous example, however the TCP port is 22 (SSH), which is not allowed through the NSG (note the 'D' flag).
@@ -541,13 +556,13 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 **2)** In the left hand menu, select 'Next Hop'. Use the following parameters as input:
 
-- Resource Group: *VDC-Main*
+- Resource Group: *VDC-Spoke1*
 - Virtual Machine: *Spoke1-VM1*
 - Network Interface: *Spoke1-VM1-nic*
-- Source IP address: *10.1.1.6*
+- Source IP address: *10.1.1.5*
 - Destination IP address: *10.102.1.4*
 
-**3)** The resulting output should display *10.101.1.4* as the next hop. This is the IP address of our Network Virtual Appliance (Cisco CSR) and corresponds to the User Defined Route we configured earlier.
+**3)** The resulting output should display *10.101.2.4* as the next hop. This is the IP address of our Network Virtual Appliance (Cisco CSR) and corresponds to the User Defined Route we configured earlier.
 
 ![Next Hop Tracking](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NextHop.jpg "Next Hop Tracking")
 
@@ -565,7 +580,7 @@ Azure Monitor is a tool that provides central monitoring of most Azure services,
 
 **Figure 20:** Azure Monitor Activity Log
 
-**2)** In the Azure Monitor menu on the left, select 'Metrics'. At the top of the screen, select the 'VDC-Main' resource group and then the 'OnPrem1_VM virtual machine' in the Resource drop-down menu. Under the 'Metrics' menu, select 'Host Percentage CPU' to view the CPU metrics for this VM.
+**2)** In the Azure Monitor menu on the left, select 'Metrics'. At the top of the screen, select the 'VDC-OnPrem' resource group and then the 'OnPrem1_VM' virtual machine in the Resource drop-down menu. Under the 'Metrics' menu, select 'Host Percentage CPU' to view the CPU metrics for this VM.
 
 ![Azure Monitor CPU Metrics](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonCPU.jpg "Azure Monitor CPU Metrics")
 
@@ -599,11 +614,165 @@ stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
 
 **7)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
 
-# Decommission the Lab <a name="decommission"></a>
+# Lab 5: Identity in the VDC Environment <a name="identity"></a>
 
-To decommission the VDC lab, simply remove the two resource groups using the following commands:
+A critical part of any data centre - whether on-premises or in the cloud - is managing identity. In this section of the lab, we will look at two of the primary mechanisms for managing identity in the virtual data centre: Azure Active Directory (AAD) and Role Based Access Control (RBAC). We will use Azure AD to create users and groups and then use RBAC to assign roles and access to resources for these groups.
+
+In this lab, we will create three groups of users, as shown in figure 23:
+
+![VDC Users and Groups](https://github.com/Araffe/vdc-networking-lab/blob/master/images/identity.jpg "VDC Users and Groups")
+
+**Figure 23:** VDC Lab Users and Groups
+
+The groups will have the following rights:
+
+- The **Central IT** group has overall responsibility for network and security components, therefore should have full control of the hub resources, with network contributor access on the spokes.
+
+- The **AppDev** group has responsibility for compute resources in the spoke resource groups, therefore should have the contributor role for virtual machines. Users in the AppDev group would also like to view (but not configure) resources in the Hub.
+
+- The **Ops** group are responsible for managing workloads in production, therefore will need full contributor rights in the spoke resource groups.
+
+We'll start by configuring a number of users and groups.
+
+## 5.1: Configure Users and Groups <a name="usersgroups"></a>
+
+**1)** To begin, we'll verify our domain name in the Azure portal. On the left hand side of the portal screen, click 'More Services' and then search for 'Azure Active Directory'. Click on 'Domain Name' and you will see the domain assigned to your Azure AD directory.
+
+![AAD Domain Name](https://github.com/Araffe/vdc-networking-lab/blob/master/images/DomainName.jpg "AAD Domain Name")
+
+**Figure 24:** Azure AD Domain Name
+
+**2)** Create three users (Fred, Bob and Dave) using the Azure CLI. Note that you will need to substitute your own domain in the user principal name.
 
 <pre lang="...">
-az group delete -g VDC-Main
-az group delete -g VDC-NVA
+az ad user create --display-name Fred --user-principal-name Fred@*domain*.onmicrosoft.com --password M1crosoft123
+az ad user create --display-name Bob --user-principal-name Bob@*domain*.onmicrosoft.com --password M1crosoft123
+az ad user create --display-name Dave --user-principal-name Dave@*domain*.onmicrosoft.com --password M1crosoft123
 </pre>
+
+**3)** Create three groups (CentralIT, AppDev and Ops) using the Azure CLI:
+
+<pre lang="...">
+az ad group create --display-name CentralIT --mail-nickname CentralIT
+az ad group create --display-name AppDev --mail-nickname AppDev
+az ad group create --display-name Ops --mail-nickname Ops
+</pre>
+
+**4)** In order to add users to groups using the CLI, you will need the object ID of each user. To get these IDs, use the following command - make a note of the object IDs associated with each user:
+
+<pre lang="...">
+<b>az ad user list></b>
+[
+  {
+    "displayName": "Bob",
+    "mail": null,
+    "mailNickname": "Bob",
+    "objectId": "d0463199-07c8-4768-abb0-3012b1ef856f",
+    "objectType": "User",
+    "signInName": null,
+    "userPrincipalName": "Bob@*domain*.onmicrosoft.com"
+  },
+  {
+    "displayName": "Dave",
+    "mail": null,
+    "mailNickname": "Dave",
+    "objectId": "69f6f292-2c2f-4451-8054-ff6addb300a4",
+    "objectType": "User",
+    "signInName": null,
+    "userPrincipalName": "Dave@*domain*.onmicrosoft.com"
+  },
+
+  {
+    "displayName": "Fred",
+    "mail": null,
+    "mailNickname": "Fred",
+    "objectId": "4c53a57e-2a2d-4a1d-8af6-e811850a869e",
+    "objectType": "User",
+    "signInName": null,
+    "userPrincipalName": "Fred@*domain*.onmicrosoft.com"
+  }
+]
+</pre>
+
+**5)** Use the object IDs to add the users to each group as follows:
+
+- **Fred**: CentralIT
+- **Bob**: AppDev
+- **Dave**: Ops
+
+The Azure CLI can be used to do this, as follows:
+
+<pre lang="...">
+az ad group member add --member-id *Fred's OID* --group CentralIT
+az ad group member add --member-id *Bob's OID* --group AppDev
+az ad group member add --member-id *Dave's OID* --group Ops
+</pre>
+
+## 5.2: Assign Users and Roles to Resource Groups <a name="roles"></a>
+
+Now that we have our users and groups in place, it's time to make use of them by assigning the groups to resource groups. We will also assign roles to determine what access a group has on a given resource group.
+
+**1)** In the Azure portal, navigate to the 'VDC-Hub' resource group and then the 'IAM' section.
+
+**2)** You will see the user you are currently logged on as (i.e. the admin). Click 'Add' at the top of the screen and then select the 'Contributor' role from the drop down box. Select the 'CentralIT' user from the list of users and groups. Click 'save'.
+
+**3)** Click 'Add' again, but this time select the 'Reader' role and then choose the 'AppDev' group.
+
+![Hub RBAC](https://github.com/Araffe/vdc-networking-lab/blob/master/images/Hub-RBAC.jpg "Hub RBAC")
+
+**Figure 25:** Hub Role Based Access Control
+
+**4)** Navigate to the 'VDC-Spoke1' resource group and select 'IAM'. Click 'Add' and then select the 'Virtual Machine Contributor' role. Add the AppDev group. Repeat this step for the 'VDC-Spoke2' resource group.
+
+**5)** For Spokes 1 and 2, add CentralIT with the 'Network Contributor' role.
+
+**6)** For Spokes 1 and 2, add the 'Ops' group with the 'Contributor' role.
+
+## 5.3: Test User and Group Access <a name="useraccess"></a>
+
+Now that we have Azure AD groups assigned to resource groups with the appropriate roles, we can test the access that each user has.
+
+**1)** Open a private browsing window / incognito window (depending on browser) and browse to the Azure portal (portal.azure.com).
+
+**2)** Log on to the portal as Dave (dave@*domain*.onmicrosoft.com) using the password M1crosoft123.
+
+**3)** Navigate to the resource groups view. As Dave is part of the Ops group, you will see that he has full visibility of the Spoke 1 and 2 resource groups, however Dave has no visibility of any other resource group, including the Hub.
+
+**4)** Log off from the portal and then log on again, this time as Bob (bob@*domain*.onmicrosoft.com).
+
+**5)** Navigate to the resource groups view. As Bob is part of the AppDev group, he has full visibility of the two Spoke resource groups, but only has read access to the VDC-Hub group. Select the VDC-Hub group and then 'Hub\_VNet'. Notice that Bob cannot make any changes to the Hub\_VNet resource, or any resource within the group.
+
+**6)** Log off from the portal and then log on again, this time as Fred (fred@*domain*.onmicrosoft.com).
+
+**7)** Navigate to the 'VDC-Spoke1' resource group. Select 'Hub\_VNet'. Note that Fred is able to make changes / adds, etc to the Hub\_VNet network resource (remember that Fred is part of the CentralIT group, which has the network contributor role on Spoke 1 and 2 resource groups). However, Fred is not able to see any of the virtual machine resources as the CentralIT group does not have the virtual machine contributor role on this resource group.
+
+
+# Decommission the Lab <a name="decommission"></a>
+
+To decommission the VDC lab, simply remove the resource groups using the following commands:
+
+<pre lang="...">
+az group delete --name VDC-Hub
+az group delete --name VDC-NVA
+az group delete --name VDC-Spoke1
+az group delete --name VDC-Spoke2
+az group delete --name VDC-OnPrem
+</pre>
+
+# Conclusion <a name="conclusion"></a>
+
+Well done, you made it to the end of the lab! We've covered a lot of ground in this lab, including networking, security, monitoring and identity - I hope you enjoyed running through the lab and that you learnt a few useful things from it. Don't forget to delete your resources after you have finished!
+
+# Useful References <a name="ref"></a>
+
+- **Azure Virtual Data Center White Paper:** https://docs.microsoft.com/en-us/azure/networking/networking-virtual-datacenter
+
+- **Secure Network Designs:** https://docs.microsoft.com/en-us/azure/best-practices-network-security?toc=%2fazure%2fnetworking%2ftoc.json
+
+- **Hub and Spoke Network Topologies:** https://docs.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke
+
+- **Azure Role Based Access Control**: https://docs.microsoft.com/en-us/azure/active-directory/role-based-access-control-what-is
+
+- **Azure Network Watcher:** https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview
+
+- **Azure Monitor:** https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-overview-azure-monitor

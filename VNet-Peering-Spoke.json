@@ -34,7 +34,7 @@
             "properties": {
                 "allowVirtualNetworkAccess": true,
                 "allowForwardedTraffic": false,
-                "allowGatewayTransit": true,
+                "allowGatewayTransit": false,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
                     "id": "[resourceId(parameters('hubRGName'), 'Microsoft.Network/virtualNetworks', parameters('hubVnetName'))]"
