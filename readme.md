@@ -12,11 +12,13 @@
 
 - [2.1: Configure site-to-site VPN](#vpn)
 
-- [2.2: Configure Cisco CSR1000V](#cisco)
+- [2.2: Configure Virtual Network Peerings](#vnetpeer)
 
-- [2.3: Configure User Defined Routes](#udr)
+- [2.3: Configure Cisco CSR1000V](#cisco)
 
-- [2.4: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
+- [2.4: Configure User Defined Routes](#udr)
+
+- [2.5: Test Connectivity Between On-Premises and Spoke VNets](#testconn)
 
 **[Lab 3: Secure the VDC Environment](#secure)**
 
@@ -44,7 +46,7 @@
 
 # VDC Lab Introduction <a name="intro"></a>
 
-This lab guide allows the user to deploy and test a complete Microsoft Azure Virtual Data Centre (VDC) environment. A VDC is not a specific Azure product; instead, it is a combination of features and capabilities that are brought together to meet the requirements of a modern application environment in the cloud. This lab currently focuses on the networking and security elements of a VDC, however the plan is that this will be expanded over time to include other areas, such as identity.
+This lab guide allows the user to deploy and test a complete Microsoft Azure Virtual Data Centre (VDC) environment. A VDC is not a specific Azure product; instead, it is a combination of features and capabilities that are brought together to meet the requirements of a modern application environment in the cloud.
 
 More information on VDCs can be found at the following link:
 
@@ -72,35 +74,31 @@ To sign in, use a web browser to open the page https://aka.ms/devicelogin and en
 
 The above command will provide a code as output. Open a browser and navigate to aka.ms/devicelogin to complete the login process.
 
-**2)** Use the Azure CLI to create two resource groups: *VDC-Main* and *VDC-NVA*. Note that th.e resource groups *must* be named exactly as shown here to ensure that the ARM templates deploy correctly. Use the following CLI commands to achieve this:
+**2)** Use the Azure CLI to create five resource groups: *VDC-Hub*, *VDC-Spoke1*, *VDC-Spoke2*, *VDC-OnPrem* and *VDC-NVA* . Note that the resource groups *must* be named exactly as shown here to ensure that the ARM templates deploy correctly. Use the following CLI commands to achieve this:
 
 <pre lang="...">
-az group create -l westeurope -n VDC-Main
+az group create -l westeurope -n VDC-Hub
+az group create -l westeurope -n VDC-Spoke1
+az group create -l westeurope -n VDC-Spoke2
+az group create -l westeurope -n VDC-OnPrem
 az group create -l westeurope -n VDC-NVA
 </pre>
 
 **3)** Once the resource groups have been deployed, you can deploy the lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets, VPN gateways and third party (Cisco) network virtual appliances (NVAs). The templates also deploy a simple Node.js application on the spoke virtual machines. Use the following CLI command to deploy the template:
 
 <pre lang="...">
-az group deployment create --name VDC-Create -g VDC-Main --template-uri https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/VDC-Networking-Master.json
+az group deployment create --name VDC-Create -g VDC-Hub --template-uri https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/VDC-Networking-Master.json
 </pre>
 
-The template deployment process will take approximately 45 minutes. You can monitor the progress of the deployment from the portal (navigate to the *VDC-Main* resource group and click on *Deployments* at the top of the Overview blade). Alternatively, the CLI can be used to monitor the template depoyment progress as follows:
+The template deployment process will take approximately 45 minutes. You can monitor the progress of the deployment from the portal (navigate to the *VDC-Hub* resource group and click on *Deployments* at the top of the Overview blade). Alternatively, the CLI can be used to monitor the template deployment progress as follows:
 
 <pre lang="...">
-<b>az group deployment list -g VDC-Main -o table</b>
-Name                Timestamp                         State
-------------------  --------------------------------  ---------
-vnets               2017-07-28T08:37:55.961882+00:00  Succeeded
-Hub-Spoke3-Peering  2017-07-28T08:38:21.404605+00:00  Succeeded
-Hub-Spoke2-Peering  2017-07-28T08:38:22.934825+00:00  Succeeded
-Hub-Spoke1-Peering  2017-07-28T08:38:35.888680+00:00  Succeeded
-createSpoke1VMs     2017-07-28T08:44:16.048346+00:00  Succeeded
-createSpoke2VMs     2017-07-28T08:44:31.623084+00:00  Succeeded
-createOnPremVM      2017-07-28T08:44:49.999502+00:00  Succeeded
-Hub_GW1             2017-07-28T09:13:14.553300+00:00  Succeeded
-OnPrem_GW1          2017-07-28T09:14:27.922243+00:00  Succeeded
-VDC-Create          2017-07-28T09:14:44.088006+00:00  Succeeded
+<b>az group deployment list -g VDC-Hub -o table
+Name        Timestamp                         State
+----------  --------------------------------  ---------
+hubVnet     2017-08-04T14:45:06.565300+00:00  Succeeded
+Hub_GW1     2017-08-04T15:10:40.068664+00:00  Succeeded
+VDC-Create  2017-08-04T15:12:36.937179+00:00  Succeeded
 </pre>
 
 Once the template deployment has succeeded, you can proceed to the next sections of the lab.
@@ -113,17 +111,19 @@ In this section of the lab, we will explore the environment that has been deploy
 
 **Figure 1:** VDC Lab Environment
 
-**1)** Use the Azure portal to explore the resources that have been created for you. Navigate to the resource group *VDC-Main* to get an overall view of the resources deployed:
+Note that each of the virtual networks resides in its own Azure resource group. While this environment could be deployed in one resource group only, splitting it up in this manner makes it easier to apply Role Based Access Control to the various areas individually.
 
-![Main VDC Resource Group Image](https://github.com/Araffe/vdc-networking-lab/blob/master/images/VDC-Main-RG.JPG "VDC-Main Resource Group")
+**1)** Use the Azure portal to explore the resources that have been created for you. Navigate to the various resource groups in turn to get an overall view of the resources deployed.
 
-**Figure 2:** VDC-Main Resource Group View
+![VDC-Spoke1 Resource Group Image](https://github.com/Araffe/vdc-networking-lab/blob/master/images/VDC-Spoke1.JPG "VDC-Spoke1 Resource Group")
+
+**Figure 2:** VDC-Spoke1 Resource Group View
 
 **Tip**: Select 'group by type' on the top right of the resource group view to group the resources together.
 
-**2)** Under the resource group *VDC-Main*, look at each of the virtual networks and the subnets created within each one. You will notice that *Hub_Vnet* and *OnPrem_VNet* have an additional subnet called *GatewaySubnet* - this is a special subnet used for the VPN gateway.
+**2)** Under the resource groups *VDC-Hub* and *VDC-OnPrem*, look at each of the virtual networks and the subnets created within each one. You will notice that *Hub_Vnet* and *OnPrem_VNet* have an additional subnet called *GatewaySubnet* - this is a special subnet used for the VPN gateway.
 
-**3)** Navigate to the *Spoke1-LB* load balancer. From here, navigate to 'Backend Pools' - you will see that both virtual machines are configured as part of the back end pool for the load balancer, as shown in figure 3.
+**3)** Navigate to the *Spoke1-LB* load balancer in the VDC-Spoke1 resource group. From here, navigate to 'Backend Pools' - you will see that both virtual machines are configured as part of the backend pool for the load balancer, as shown in figure 3.
 
 ![LB Backend Pools](https://github.com/Araffe/vdc-networking-lab/blob/master/images/BackendPools.JPG "LB Backend Pools")
 
@@ -131,13 +131,9 @@ In this section of the lab, we will explore the environment that has been deploy
 
 **4)** Under the load balancer, navigate to 'Load Balancing Rules'. Here, you will see that we have a single rule configured (*DemoAppRule*) that maps incoming HTTP requests to port 3000 on the backend (our simple Node.js application listens on port 3000).
 
-**5)** Navigate to the virtual network named *Hub_Vnet* in the *VDC-Main* resource group and then select 'Peerings'. Notice that the hub virtual network has VNet peerings configured with each of the spoke VNets.
+**Note:** Two types of load balancer are available in Azure - either external or internal. In our case, we have an internal load balancer deployed; that is, the load balancer has only a private IP address - in other words, it is not accessible from the Internet.
 
-![VNet Peerings](https://github.com/Araffe/vdc-networking-lab/blob/master/images/VNet-Peerings.JPG "VNet Peerings")
-
-**Figure 4:** Virtual Network Peerings
-
-**6)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
+**5)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
 
 Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
 
@@ -147,27 +143,25 @@ Now that you are familiar with the overall architecture, let's move on to the ne
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
-**1)** Using the Azure CLI (either local or using the Azure Cloud Shell), enter the following to create one side of the VPN connection:
+**1)** Using the Azure portal, navigate to the *VDC-Hub* resource group and find the virtual network gateway named 'Hub_GW1'. Select 'Connections'.
 
-<pre lang="...">
-az network vpn-connection create --name Hub2OnPrem -g VDC-Main --vnet-gateway1 Hub_GW1 --vnet-gateway2 OnPrem_GW1 --shared-key M1crosoft123 --enable-bgp
-</pre>
+**2)** Add a connection and name it 'Hub2OnPrem'.
 
-**2)** Use the Azure CLI to create the other side of the VPN connection:
+**3)** Choose 'OnPrem_GW' as the second gateway.
 
-<pre lang="...">
-az network vpn-connection create --name OnPrem2Hub -g VDC-Main --vnet-gateway1 OnPrem_GW1 --vnet-gateway2 Hub_GW1 --shared-key M1crosoft123 --enable-bgp
-</pre>
+**4)** Use 'M1crosoft123' as the shared key. Select 'OK' to complete the connection.
 
-**3)** Using the Azure portal, under the resource group *VDC-Main* navigate to the *OnPrem_GW1* virtual network gateway resource and then click 'Connections'. You should see a successful VPN connection between the OnPrem and Hub VPN gateways.
+**5)** Repeat the process for the other VPN gateway under the resource group *VDC-OnPrem*, but reverse the first and second gateways (name the connection 'OnPrem2Hub')
+
+**6)** Under the resource group *VDC-Hub* navigate back to the *OnPrem_GW1* virtual network gateway resource and then click 'Connections'. You should see a successful VPN connection between the OnPrem and Hub VPN gateways.
 
 **Note:** It may take a few minutes before a successful connection is shown between the gateways.
 
 At this point, we can start to verify the connectivity we have set up. One of the ways we can do this is by inspecting the *effective routes* associated with a virtual machine. Let's take a look at the effective routes associated with the *OnPrem_VM1* virtual machine that resides in the OnPrem VNet.
 
-**4)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-Main resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
+**6)** Using the Azure portal, navigate to the *OnPrem_VM1-nic* object under the VDC-OnPrem resource group. This object is the network interface associated with the OnPrem_VM virtual machine.
 
-**5)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see two entries for 'virtual network gateway', one of which specifies an address range of 10.101.0.0/16, as shown in figure 5.
+**7)** Under 'Support + Troubleshooting', select 'Effective Routes'. You should see an entry for 'virtual network gateway', specifying an address range of 10.101.0.0/16, as shown in figure 5.
 
 ![Effective Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/images/EffectiveRoutes1.JPG "Effective Routes")
 
@@ -179,9 +173,21 @@ Figure 6 shows a diagram explaining what we see when we view the effective route
 
 **Figure 6:** Routing from OnPrem_VM
 
+Next, we'll configure the peerings between our Hub and Spoke virtual networks.
+
+## 2.2: Configure Virtual Network Peerings <a name="vnetpeer"></a>
+
+The environment that has been deployed has one Hub virtual network (VNet) and two Spoke VNets. At the moment however, those VNets do not have any kind of 'peering' relationship with each other, therefore no communication can occur between them. In this section, we will add VNet peerings between the Hub VNet and each Spoke.
+
+**1)** Using the Azure CLI, add the VNet peering connections on the Hub side:
+
+<pre lang="...">
+
+ </pre>
+
 Next, let's move on to configuring our Cisco Network Virtual Appliances.
 
-## 2.2: Configure Cisco CSR1000V <a name="cisco"></a>
+## 2.3: Configure Cisco CSR1000V <a name="cisco"></a>
 
 One of the requirements of many enterprise organisations is to provide a secure perimeter or DMZ environment using third party routers or firewall devices. Azure allows for this requirement to be met through the use of third party Network Virtual Appliances (NVAs). An NVA is essentially a virtual machine that runs specialised software, typically from a network equipment manufacturer, and that provides routing or firewall functionality within the Azure environment.
 
@@ -256,7 +262,7 @@ ssh labuser@10.1.1.5
 
 This attempt will fail - the reason for this is that we do not yet have the correct routing in place to allow connectivity between the On Premises VNet and the Spoke VNets via the hub / NVA. In the next section, we will configure the routing required to achieve this.
 
-## 2.3: Configure User Defined Routes <a name="udr"></a>
+## 2.4: Configure User Defined Routes <a name="udr"></a>
 
 In this section, we will configured a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
 
@@ -324,7 +330,7 @@ az network vnet subnet update --name Spoke_VNet2-Subnet1 --vnet-name Spoke_Vnet2
 
 Great, everything is in place - we are now ready to test connectivity between our on-premises environment and the Spoke VNets.
 
-## 2.4: Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
+## 2.5: Test Connectivity Between On-Premises and Spoke VNets <a name="testconn"></a>
 
 In this section, we'll perform some simple tests to validate connectivity between our "on-premises" environment and the Spoke VNets - this communication should occur through the Cisco CSR router that resides in the Hub VNet.
 
