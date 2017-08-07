@@ -620,7 +620,7 @@ A critical part of any data centre - whether on-premises or in the cloud - is ma
 
 In this lab, we will create three groups of users, as shown in figure 23:
 
-![VDC Users and Groups](https://github.com/Araffe/vdc-networking-lab/blob/master/images/identity.jpg "VDC Users and Groups")
+![VDC Users and Groups](https://github.com/Araffe/vdc-networking-lab/blob/master/images/Identity.jpg "VDC Users and Groups")
 
 **Figure 23:** VDC Lab Users and Groups
 
