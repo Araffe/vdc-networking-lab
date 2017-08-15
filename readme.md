@@ -361,7 +361,7 @@ Although we have all the routing we need configured, this connectivity is still 
 
 It turns out that there is an additional setting we must configure on the VNet peerings to allow this type of hub and spoke connectivity to happen. Follow these steps to make the required changes:
 
-**3)** In the Azure portal, navigate to *Spoke_VNet1* in the 'VDC-Spoke1' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
+**3)** In the Azure portal, navigate to *Spoke1_VNet* in the 'VDC-Spoke1' resource group. Select 'peerings' and then select the 'to-Hub_Vnet' peering. You'll see that the option entitled *Use Remote Gateways* is unchecked. Checking this option allows the VNet to use a gateway in a *remote* virtual network - as we need our Spoke VNets to use a gateway residing in the Hub VNet, this is exactly what we need, so check the box as shown in figure 9.
 
 ![Use Remote GW](https://github.com/Araffe/vdc-networking-lab/blob/master/images/UseRemoteGW.JPG "Use Remote GW")
 
@@ -425,9 +425,9 @@ Our NSG will define two rules - one for HTTP and another for TCP port 3000. This
 - Destination port range: *Any*
 - Action: *Deny*
 
-**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke_VNet1' and 'Spoke\_VNet1-Subnet1'.
+**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke1_VNet' and 'Spoke\_VNet1-Subnet1'.
 
-![NSG Associate Subnet](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSG1.jpg "NSG Associate Subnet")
+![NSG Associate Subnet](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSG2.jpg "NSG Associate Subnet")
 
 **Figure 11:** Network Security Group - Associating with a Subnet
 
