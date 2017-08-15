@@ -485,7 +485,7 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 **3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resource group 'VDC-Hub' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
 
-![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcher1.jpg "Network Topology")
+![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcherTopo.jpg "Network Topology")
 
 **Figure 15:** Network Topology View in Network Watcher
 
