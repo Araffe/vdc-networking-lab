@@ -277,7 +277,18 @@ This step should succeed, which proves connectivity between the On Premises and 
 
 **Figure 6:** SSH from OnPrem_VM to vdc-csr-1
 
-**8)** From the same VM, attempt to connect to the private IP address of a virtual machine within the Spoke 1 Vnet:
+**8)** Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
+
+<pre lang="...">
+az network nic ip-config list --resource-group VDC-Spoke1 --nic-name Spoke1-VM1-nic -o table
+az network nic list --query "[].{group: resourceGroup, NIC:name, IPaddress: ipConfigurations[0].privateIpAddress}" -o table
+</pre>
+
+The second command is more complicated, using a JMESPATH query to customise the output.  
+
+The VM's IP address is expected to be 10.1.1.5.or.10.1.1.6 dependant on the order the VM builds completed.
+
+**9)** From the same VM, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
