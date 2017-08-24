@@ -110,6 +110,16 @@ az group create -l westeurope -n VDC-OnPrem
 az group create -l westeurope -n VDC-NVA
 </pre>
 
+or script it within a loop, as follows:
+
+<pre lang="...">
+for rg in Hub Spoke1 Spoke2 OnPrem NVA
+do
+  rg=VDC-$rg
+  az group create -l westeurope -n $rg
+done
+</pre>
+
 **3)** Once the resource groups have been deployed, you can deploy the lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets, VPN gateways and third party (Cisco) network virtual appliances (NVAs). The templates also deploy a simple Node.js application on the spoke virtual machines. Use the following CLI command to deploy the template:
 
 <pre lang="...">
