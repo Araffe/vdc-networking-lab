@@ -729,6 +729,14 @@ az ad group member add --member-id *Bob's OID* --group AppDev
 az ad group member add --member-id *Dave's OID* --group Ops
 </pre>
 
+This can be combined with a query, as in the following example for Bob:
+
+<pre lang="...">
+bobOID=$(az ad user list --query "[?displayName == 'Bob'].objectId" -o tsv)
+az ad group member add --member-id $bobOID --group AppDev
+</pre>
+
+
 ## 5.2: Assign Users and Roles to Resource Groups <a name="roles"></a>
 
 Now that we have our users and groups in place, it's time to make use of them by assigning the groups to resource groups. We will also assign roles to determine what access a group has on a given resource group.
