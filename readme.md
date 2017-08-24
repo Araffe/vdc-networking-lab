@@ -67,7 +67,7 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 
 **1)** Using the Azure portal, click on the 'Add' button on the top left of the screen. Search for 'Resource Group' and then select 'Create'. Name the resource group 'NVA-Legal'.
 
-**2)** Click the 'Add' button again, but this time search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 2 NICs' and then select create.
+**2)** Click the 'Add' button in the new 'NVA-Legal' resource group blade.  Search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 4 NICs' and then select create.
 
 **3)** Name the virtual machine 'NVA-Legal' and use the username and password *labuser / M1crosoft123*. Select the resource group you created in step 1 (NVA-Legal).
 
