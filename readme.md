@@ -581,6 +581,8 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 - Source IP address: *10.1.1.5*
 - Destination IP address: *10.102.1.4*
 
+(Note that the IP address for Spoke1-VM1 might be 10.1.1.6 depending on the build order of the two VMs.)
+
 **3)** The resulting output should display *10.101.2.4* as the next hop. This is the IP address of our Network Virtual Appliance (Cisco CSR) and corresponds to the User Defined Route we configured earlier.
 
 ![Next Hop Tracking](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NextHop.jpg "Next Hop Tracking")
