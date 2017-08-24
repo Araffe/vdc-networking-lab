@@ -593,9 +593,9 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 ## 4.4: Metrics and Alerts with Azure Monitor <a name="azmonalert"></a>
 
-Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will use Azure monitor to look at metrics on a resource and create an alert to receive an email when a CPU threshold is crossed.
+Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will use Azure Monitor to look at metrics on a resource and create an alert to receive an email when a CPU threshold is crossed.
 
-**1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selcting 'Monitor'. If it is not shown, select 'More Services' and search for it. The initial view is the Activity Log. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
+**1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selecting 'Monitor'. If it is not shown, select 'More Services' and search for it. The initial view is the Activity Log. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
 
 ![Azure Monitor Activity Log](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMon1.jpg "Azure Monitor Activity Log")
 
