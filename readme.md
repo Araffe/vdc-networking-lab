@@ -450,7 +450,7 @@ Our NSG will define two rules - one for HTTP and another for TCP port 3000. This
 
 **Figure 11:** Network Security Group - Associating with a Subnet
 
-**6)** SSH into the OnPrem-VM1 virtual machine from your terminal emulator. From this VM, attempt to SSH to the first Spoke1 VM:
+**6)** SSH back into the OnPrem-VM1 virtual machine from your terminal emulator. (This will refresh the NSG rules for the associated NIC.) From this VM, attempt to SSH to the first Spoke1 VM:
 
 <pre lang="...">
 ssh labuser@10.1.1.6
