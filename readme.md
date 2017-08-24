@@ -10,7 +10,7 @@
 
 **[Lab 2: Configure the VDC Infrastructure](#configure)**
 
-- [2.1: Configure site-to-site VPN](#vpn)
+- [2.1: Configure Site-to-Site VPN](#vpn)
 
 - [2.2: Configure Cisco CSR1000V](#cisco)
 
@@ -174,7 +174,7 @@ Now that you are familiar with the overall architecture, let's move on to the ne
 
 # Lab 2: Configure the VDC Infrastructure <a name="configure"></a>
 
-## 2.1: Configure Site-to-site VPN <a name="vpn"></a>
+## 2.1: Configure Site-to-Site VPN <a name="vpn"></a>
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
