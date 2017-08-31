@@ -461,7 +461,7 @@ This connection attempt will fail due to the NSG now associated with the Spoke1 
 **7)** From OnPrem_VM1, make sure you can still access the demo app:
 
 <pre lang="...">
-curl http://10.1.1.5
+curl http://10.1.1.5:3000
 </pre>
 
 You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
