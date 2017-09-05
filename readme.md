@@ -344,7 +344,7 @@ az network route-table route create --name Spoke2-Route --address-prefix 10.2.0.
 **6)** Associate the UDR with the GatewaySubnet inside the Hub Vnet:
 
 <pre lang="...">
-az network vnet subnet update --name Hub_Vnet-Subnet1 --vnet-name Hub_Vnet --route-table Hub_UDR -g VDC-Hub
+az network vnet subnet update --name GatewaySubnet --vnet-name Hub_VNet --route-table Hub_UDR -g VDC-Hub
 </pre>
 
 **7)** Configure the UDRs for the Spoke VNets, with relevant routes and associate to the subnets:
@@ -410,9 +410,9 @@ At the moment, our user in the On Premises VNet is potentially able to access th
 
 An NSG is a list of user-defined security rules that allows or denies traffic on specific ports, or to / from specific IP address ranges. An NSG can be applied at two levels: at the virtual machine NIC level, or at a subnet level.
 
-Our NSG will define two rules - one for HTTP and another for TCP port 3000. This NSG will be applied at the subnet level.
+Our NSG will define two inbound rules - one for HTTP and another for TCP port 3000. We'll create this NSG within our Hub VNet in order to enforce traffic at a central location. This NSG will be applied at the first CSR1000V interface (i.e. the interface where traffic would come in from the OnPrem VNet).
 
-**1)** In the Azure portal under the resource group VDC-Spoke1, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Spoke-NSG*.
+**1)** In the Azure portal under the resource group VDC-Hub, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Hub-NSG*.
 
 **2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule and then click the 'Advanced' button. Use the following parameters:
 
@@ -442,7 +442,7 @@ Our NSG will define two rules - one for HTTP and another for TCP port 3000. This
 - Destination port range: *Any*
 - Action: *Deny*
 
-**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke1_VNet' and 'Spoke1\_VNet-Subnet1'.
+**5)** Select 'Network Interfaces'. Click the 'Associate' button and choose 'vdc-csr-1-Nic0'.
 
 ![NSG Associate Subnet](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSG2.jpg "NSG Associate Subnet")
 
@@ -459,7 +459,7 @@ This connection attempt will fail due to the NSG now associated with the Spoke1 
 **7)** From OnPrem_VM1, make sure you can still access the demo app:
 
 <pre lang="...">
-curl http://10.1.1.5
+curl http://10.1.1.4
 </pre>
 
 You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
