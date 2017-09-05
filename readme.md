@@ -67,7 +67,7 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 
 **1)** Using the Azure portal, click on the 'Add' button on the top left of the screen. Search for 'Resource Group' and then select 'Create'. Name the resource group 'NVA-Legal'.
 
-**2)** Click the 'Add' button again, but this time search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 2 NICs' and then select create.
+**2)** Click the 'Add' button within the new 'NVA-Legal' resource group blade. Search for 'Cisco', select the option entitled 'Cisco CSR 1000v Deployment with 4 NICs' and then select create.
 
 **3)** Name the virtual machine 'NVA-Legal' and use the username and password *labuser / M1crosoft123*. Select the resource group you created in step 1 (NVA-Legal).
 
@@ -461,7 +461,7 @@ This connection attempt will fail due to the NSG now associated with the Spoke1 
 **7)** From OnPrem_VM1, make sure you can still access the demo app:
 
 <pre lang="...">
-curl http://10.1.1.5
+curl http://10.1.1.5:3000
 </pre>
 
 You might wonder why the third rule denying all traffic is required in this example. The reason for this is that a default rule exists in the NSG that allows all traffic from every virtual network. Therefore, without the specific 'Deny-All' rule in place, all traffic will succeed (in other words, the NSG will have no effect). You can see the default rules by clicking on 'Default Rules' under the security rules view.
@@ -580,6 +580,8 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 - Network Interface: *Spoke1-VM1-nic*
 - Source IP address: *10.1.1.5*
 - Destination IP address: *10.102.1.4*
+
+(Note that the IP address for Spoke1-VM1 might be 10.1.1.6 depending on the build order of the two VMs.)
 
 **3)** The resulting output should display *10.101.2.4* as the next hop. This is the IP address of our Network Virtual Appliance (Cisco CSR) and corresponds to the User Defined Route we configured earlier.
 
@@ -726,6 +728,14 @@ az ad group member add --member-id *Fred's OID* --group CentralIT
 az ad group member add --member-id *Bob's OID* --group AppDev
 az ad group member add --member-id *Dave's OID* --group Ops
 </pre>
+
+This can be combined with a query, as in the following example for Bob:
+
+<pre lang="...">
+bobOID=$(az ad user list --query "[?displayName == 'Bob'].objectId" -o tsv)
+az ad group member add --member-id $bobOID --group AppDev
+</pre>
+
 
 ## 5.2: Assign Users and Roles to Resource Groups <a name="roles"></a>
 
