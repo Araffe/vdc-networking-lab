@@ -284,7 +284,7 @@ az network nic list --query "[].{group: resourceGroup, NIC:name, IPaddress: ipCo
 
 The second command is more complicated, using a JMESPATH query to customise the output.  
 
-The VM's IP address is expected to be 10.1.1.5.or.10.1.1.6 dependant on the order the VM builds completed.
+The VM's IP address is expected to be 10.1.1.5 or 10.1.1.6 depending on the order in which the VM builds completed.
 
 **9)** From the same VM, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
 
@@ -408,13 +408,13 @@ In this section of the lab, we will use Azure features to further secure the vir
 
 At the moment, our user in the On Premises VNet is potentially able to access the Spoke 1 & 2 virtual machines on any TCP port - for example, SSH. We want to use Azure Network Security Groups (NSGs) to prevent traffic on any port other than HTTP and port 3000 (the port the application runs on) being allowed into our Spoke VNets.
 
-An NSG is a list of user=defined security rules that allows or denies traffic on specific ports, or to / from specific IP address ranges. An NSG can be applied at two levels: at the virtual machine NIC level, or at a subnet level.
+An NSG is a list of user-defined security rules that allows or denies traffic on specific ports, or to / from specific IP address ranges. An NSG can be applied at two levels: at the virtual machine NIC level, or at a subnet level.
 
 Our NSG will define two rules - one for HTTP and another for TCP port 3000. This NSG will be applied at the subnet level.
 
 **1)** In the Azure portal under the resource group VDC-Spoke1, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Spoke-NSG*.
 
-**2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule. Use the following parameters:
+**2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule and then click the 'Advanced' button. Use the following parameters:
 
 - Name: *Allow-http*
 - Priority: *100*
@@ -442,16 +442,16 @@ Our NSG will define two rules - one for HTTP and another for TCP port 3000. This
 - Destination port range: *Any*
 - Action: *Deny*
 
-**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke1_VNet' and 'Spoke\_VNet1-Subnet1'.
+**5)** Select 'Subnets'. Click the 'Associate' button and choose 'Spoke1_VNet' and 'Spoke1\_VNet-Subnet1'.
 
 ![NSG Associate Subnet](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSG2.jpg "NSG Associate Subnet")
 
 **Figure 11:** Network Security Group - Associating with a Subnet
 
-**6)** SSH back into the OnPrem-VM1 virtual machine from your terminal emulator. (This will refresh the NSG rules for the associated NIC.) From this VM, attempt to SSH to the first Spoke1 VM:
+**6)** SSH back into the OnPrem-VM1 virtual machine from your terminal emulator (this will refresh the NSG rules for the associated NIC). From this VM, attempt to SSH to the first Spoke1 VM:
 
 <pre lang="...">
-ssh labuser@10.1.1.6
+ssh labuser@10.1.1.5
 </pre>
 
 This connection attempt will fail due to the NSG now associated with the Spoke1 subnet.
