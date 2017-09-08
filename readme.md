@@ -24,6 +24,8 @@
 
 - [3.2: Using Azure Security Center](#seccenter)
 
+- [3.3: Implementing Azure Resource Policies](#armpolicies)
+
 **[Lab 4: Monitor the VDC Environment](#monitor)**
 
 - [4.1: Enable Network Watcher](#netwatcher)
@@ -466,7 +468,7 @@ You might wonder why the third rule denying all traffic is required in this exam
 
 ## 3.2: Using Azure Security Center <a name="seccenter"></a>
 
-Azure Security Center is a feature built in to Azure which allows administrators to gain visibility into the security of their environment and to detect and respond to issues and threats.
+Azure Security Center is a feature built in to Azure which allows administrators to gain visibility into the security of their environment and to detect and respond to issues and threats. In this part of the lab, we'll explore Azure Security Center and what it has to offer.
 
 **1)** In the Azure portal, expand the left hand menu and select 'More Services'. Search for and then select 'Security Center'.
 
@@ -484,6 +486,92 @@ Azure Security Center is a feature built in to Azure which allows administrators
 
 **4)** Explore other areas of the Security Center - click through the Compute, Networking and Storage sections to see recommendations specific to these areas.
 
+## 3.3: Implementing Azure Resource Policies <a name="armpolicies"></a>
+
+Azure resource policies are used to place restrictions on what actions can be taken at a subscription or resource group level. For example, a resource policy could specify that only certain VM sizes are allowed, or that encryption is required for storage accounts. In this section of the lab, we'll apply both built-in and custom resource policies to some of our resource groups to restrict what can and can't be done in our environment.
+
+**1)** In the Azure portal, navigate to the VDC-Hub resource group and then click on *Policies* in the menu.
+
+**2)** Click on the 'Policies' tab in the right hand pane to see a list of available built-in resource policies.
+
+**3)** Select the policy entitled 'Allowed Resource Types' and then click on 'JSON'. This shows you the JSON policy document - this simple example takes a list of resource types and prevents the ability to create them.
+
+![Azure Resource Policy Example](https://github.com/Araffe/vdc-networking-lab/blob/master/images/armpolicies1.jpg "Azure Resource Policy Example")
+
+**Figure 14:** Example Resource Policy - Allowed Resource Types
+
+**4)** Switch back to the 'Assignments' tab in the right hand pane and click 'Add'.
+
+**5)** Use the following details to create the policy:
+
+- Policy: *Allowed Resource Types*
+- Allowed Resource Types: *Select all 'Microsoft.Network' resources*
+- Display Name: *Allow Network*
+- ID: *Allow-Network*
+
+**6)** Return to the 'Overview' page for the VDC-Hub resource group and click on 'Add'.
+
+**7)** Type 'Ubuntu' into the search box and then select 'Ubuntu Server 16.04 LTS'. Click the 'Create button'.
+
+**8)** Call the VM 'Ubuntu-Test', fill in the username / password details and make sure that 'VDC-Hub' is selected as the resource group.
+
+**9)** On the next pages, choose any VM size and accept the networking defaults.
+
+**10)** Proceed to the validation screen. The validation should fail with an error such as "The resource action 'Microsoft.Compute/virtualMachines/write' is disallowed by one or more policies". The VM creation has failed in the VDC-Hub resource group due to the resource policy we implemented in this section.
+
+**11)** Return to the 'Policies' page and remove the 'Allow-Network' resource policy assignment.
+
+If the built-in policies do not meet your requirements, it is also possible to create custom policies. The following steps walk you through custom policy creation.
+
+In this example, we'll create a policy that enforces a specific naming convention - if the user attempts to create a resource that does not meet the convention, the request will be denied. We first need to define the resource policy template - these are written in JSON format. The JSON for our custom policy is as follows:
+
+<pre lang="...">
+{
+    "if": {
+      "not": {
+        "field": "name",
+        "like": "VDC-*"
+      }
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+</pre>
+
+This policy states that we must name our resources with the 'VDC-' prefix.
+
+In this exercise, we will create a file with this JSON information - that file will then be referenced from a Powershell script in order to create the policy in Azure.
+
+**1)** Create a file containing the JSON code shown above and save it on your computer as "naming-policy.json".
+
+**2)** Open a Powershell window on your computer. Enter the following code to create the policy:
+
+<pre lang="...">
+$NamingPolicy = "naming-policy.json"
+New-AzureRmPolicyDefinition -name "EnforceNamingConvention" -DisplayName "EnforceNamingConvention" -Policy $NamingPolicy -Description "Policy to enforce naming convention"
+</pre>
+
+**3)** Assign the policy to the VDC-Hub resource group using the following Powershell code:
+
+<pre lang="...">
+$rg = Get-AzureRmResourceGroup -Name "VDC-Hub"
+New-AzureRMPolicyAssignment -Name EnforceNaming -Scope $rg.ResourceId -PolicyDefinition $definition
+</pre>
+
+**4)** In the VDC-Hub resource group, create a new virtual network named "test-net" using default parameters. You should receive a validation error as the name does not meet the required convention, as specified in the resource policy.
+
+**5)** Attempt to create the virtual network again, but this time name it "VDC-testnet". This attempt should succeed as the name matches the convention.
+
+**6)** Remove the VDC-Test virtual network from the resource group.
+
+**7)** Unassign and remove the naming convention policy using the following Powershell code:
+
+<pre lang="...">
+Remove-AzureRmPolicyAssignment -Name EnforceNaming -scope $rg.ResourceId
+Remove-AzureRmPolicyDefinition -Name EnforceNamingConvention
+</pre>
+
 # Lab 4: Monitor the VDC Environment <a name="monitor"></a>
 
 In this section, we will explore some of the monitoring options we have in Azure and how those can be used to troubleshoot and diagnose issues in a VDC environment. The first tool we will look at is *Network Watcher*. Network Watcher is a collection of tools available to monitor and troubleshoot issues with network connectivity in Azure, including packet capture, NSG flow logs and IP flow verify.
@@ -498,19 +586,19 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 ![Enabling Network Watcher](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcher1.jpg "Enabling Network Watcher")
 
-**Figure 14:** Enabling Network Watcher
+**Figure 15:** Enabling Network Watcher
 
 **3)** On the left hand side of screen under 'Monitoring', click on 'Topology'. Select your subscription and then the resource group 'VDC-Hub' and 'Hub_Vnet'. You will see a graphical representation of the topology on the screen:
 
 ![Network Topology](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NetWatcherTopo.jpg "Network Topology")
 
-**Figure 15:** Network Topology View in Network Watcher
+**Figure 16:** Network Topology View in Network Watcher
 
 **4)** A useful feature of Network Watcher is the ability to view network related subscription limits and track your resource utilisation against these. In the left hand menu, select 'Network Subscription Limit'. You will see a list of resources, including virtual networks, public IP addresses and more:
 
 ![Network Subscription Limits](https://github.com/Araffe/vdc-networking-lab/blob/master/images/SubLimits.jpg "Network Subscription Limits")
 
-**Figure 16:** Network Related Subscription Limits
+**Figure 17:** Network Related Subscription Limits
 
 ## 4.2: NSG Flow Logs <a name="nsgflowlogs"></a>
 
@@ -528,7 +616,7 @@ az storage account create --name <storage-account-name> -g VDC-Hub --sku Standar
 
 ![NSG Flow Log Settings](https://github.com/Araffe/vdc-networking-lab/blob/master/images/FlowLogs1.jpg "NSG Flow Log Settings")
 
-**Figure 17:** NSG Flow Log Settings
+**Figure 18:** NSG Flow Log Settings
 
 **4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 (through the load balancer) and attempt to SSH to the same VM (this will fail):
 
@@ -541,7 +629,7 @@ ssh labuser@10.1.1.5
 
 ![NSG Log Download](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSGLogs.jpg "NSG Log Download")
 
-**Figure 18:** NSG FLow Log Download
+**Figure 19:** NSG FLow Log Download
 
 **6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 3000 (the port our demo app operates on) from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
 
@@ -583,7 +671,7 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 ![Next Hop Tracking](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NextHop.jpg "Next Hop Tracking")
 
-**Figure 19:** Next Hop Tracking
+**Figure 20:** Next Hop Tracking
 
 **4)** Try other combinations of IP address / virtual machine. For example, reverse the IP addresses used in the previous step.
 
@@ -595,13 +683,13 @@ Azure Monitor is a tool that provides central monitoring of most Azure services,
 
 ![Azure Monitor Activity Log](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMon1.jpg "Azure Monitor Activity Log")
 
-**Figure 20:** Azure Monitor Activity Log
+**Figure 21:** Azure Monitor Activity Log
 
 **2)** In the Azure Monitor menu on the left, select 'Metrics'. At the top of the screen, select the 'VDC-OnPrem' resource group and then the 'OnPrem1_VM' virtual machine in the Resource drop-down menu. Under the 'Metrics' menu, select 'Host Percentage CPU' to view the CPU metrics for this VM.
 
 ![Azure Monitor CPU Metrics](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonCPU.jpg "Azure Monitor CPU Metrics")
 
-**Figure 21:** Azure Monitor CPU Metrics
+**Figure 22:** Azure Monitor CPU Metrics
 
 **3)** For all types of metric displayed, it is possible to configure alerts when a specific threshold is reached. In the CPU metric view, click on 'Add Metric Alert' at the top of the screen. Use the following parameters to configure the alerting rule:
 
@@ -627,7 +715,7 @@ stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
 
 ![Azure Monitor CPU Alert](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonAlert.jpg "Azure Monitor CPU Alert")
 
-**Figure 22:** Azure Monitor CPU Alert
+**Figure 23:** Azure Monitor CPU Alert
 
 **7)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
 
@@ -639,7 +727,7 @@ In this lab, we will create three groups of users, as shown in figure 23:
 
 ![VDC Users and Groups](https://github.com/Araffe/vdc-networking-lab/blob/master/images/Identity.jpg "VDC Users and Groups")
 
-**Figure 23:** VDC Lab Users and Groups
+**Figure 24:** VDC Lab Users and Groups
 
 The groups will have the following rights:
 
@@ -657,7 +745,7 @@ We'll start by configuring a number of users and groups.
 
 ![AAD Domain Name](https://github.com/Araffe/vdc-networking-lab/blob/master/images/DomainName.jpg "AAD Domain Name")
 
-**Figure 24:** Azure AD Domain Name
+**Figure 25:** Azure AD Domain Name
 
 **2)** Create three users (Fred, Bob and Dave) using the Azure CLI. Note that you will need to substitute your own domain in the user principal name.
 
@@ -737,7 +825,7 @@ Now that we have our users and groups in place, it's time to make use of them by
 
 ![Hub RBAC](https://github.com/Araffe/vdc-networking-lab/blob/master/images/Hub-RBAC.jpg "Hub RBAC")
 
-**Figure 25:** Hub Role Based Access Control
+**Figure 26:** Hub Role Based Access Control
 
 **4)** Navigate to the 'VDC-Spoke1' resource group and select 'IAM'. Click 'Add' and then select the 'Virtual Machine Contributor' role. Add the AppDev group. Repeat this step for the 'VDC-Spoke2' resource group.
 
