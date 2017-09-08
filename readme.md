@@ -488,7 +488,7 @@ Azure Security Center is a feature built in to Azure which allows administrators
 
 ## 3.3: Implementing Azure Resource Policies <a name="armpolicies"></a>
 
-Azure resource policies are used to place restrictions on what actions can be taken at a subscription or resource group level. For example, a resource policy could specify that only certain VM sizes are allowed, or that encryption is required for storage accounts. In this section of the lab, we'll apply both built-in and custom resource policies to some of our resource groups to restrict what can and can't be done in our environment.
+Azure resource policies are used to place restrictions on what actions can be taken at a subscription or resource group level. For example, a resource policy could specify that only certain VM sizes are allowed, or that encryption is required for storage accounts. In this section of the lab, we'll apply both built-in and custom resource policies to one of our resource groups to restrict what can and can't be done in our environment.
 
 **1)** In the Azure portal, navigate to the VDC-Hub resource group and then click on *Policies* in the menu.
 
@@ -545,7 +545,7 @@ In this exercise, we will create a file with this JSON information - that file w
 
 **1)** Create a file containing the JSON code shown above and save it on your computer as "naming-policy.json".
 
-**2)** Open a Powershell window on your computer. Enter the following code to create the policy:
+**2)** Open a Powershell window on your computer. Enter the following code to create the policy (make sure you are working in the directory where the JSON file exists on your computer):
 
 <pre lang="...">
 $NamingPolicy = "naming-policy.json"
