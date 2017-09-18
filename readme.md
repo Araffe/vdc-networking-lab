@@ -607,10 +607,10 @@ Network Security Group (NSG) Flow Logs are a feature of Network Watcher that all
 **1)** To begin with, we need to create a storage account to store the NSG flow logs. Use the following CLI to do this, substituting the storage account name for a unique name of your choice:
 
 <pre lang="...">
-az storage account create --name <storage-account-name> -g VDC-Hub --sku Standard_LRS
+az storage account create --name storage-account-name -g VDC-Hub --sku Standard_LRS
 </pre>
 
-**2)** Use the Azure portal to navgiate to the Network Watcher section (expand left menu, select 'More Services' and search for 'Network Watcher'). Select 'NSG Flow Logs' from the Network Watcher menu. Filter using your subscription and Resource Group at the top of the page and you should see the NSG we created in the earlier lab.
+**2)** Use the Azure portal to navigate to the Network Watcher section (expand left menu, select 'More Services' and search for 'Network Watcher'). Select 'NSG Flow Logs' from the Network Watcher menu. Filter using your subscription and Resource Group at the top of the page and you should see the NSG we created in the earlier lab.
 
 **3)** Click on the NSG and then in the settings screen, change the status to 'On'. Select the storage account you created in step 1 and change the retention to 5 days. Click 'Save'.
 
@@ -631,15 +631,15 @@ ssh labuser@10.1.1.5
 
 **Figure 19:** NSG FLow Log Download
 
-**6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 3000 (the port our demo app operates on) from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
+**6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 80 from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
 
 Here is an example of a relevant JSON entry:
 
 <pre lang="...">
-"rule":"UserRule_Allow-3000","flows":[{"mac":"000D3A25DC84","flowTuples":["1501685102,10.102.1.4,10.1.1.5,56934,3000,T,I,A"
+"rule":"UserRule_Allow-HTTP","flows":[{"mac":"000D3A25DC84","flowTuples":["1501685102,10.102.1.4,10.1.1.5,56934,80,T,I,A"
 </pre>
 
-The above entry shows that a flow has hit the user rule named 'Allow-3000' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.5 (one of our Spoke1 VMs), using TCP port 3000. The letters T, I and A signify the following:
+The above entry shows that a flow has hit the user rule named 'Allow-HTTP' (a rule that we configured earlier) and that the flow has a source address of 10.102.1.4 and a destination address of 10.1.1.5 (one of our Spoke1 VMs), using TCP port 80. The letters T, I and A signify the following:
 
 - **T:** A TCP flow (a 'U' would indicate UDP)
 - **I:** An ingress flow (an 'E' would indicate an egress flow)
