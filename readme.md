@@ -541,27 +541,27 @@ In this example, we'll create a policy that enforces a specific naming conventio
 
 This policy states that we must name our resources with the 'VDC-' prefix.
 
-In this exercise, we will create a file with this JSON information - that file will then be referenced from an AZ CLI command in order to create the policy in Azure.
+In this exercise, a file has been created on Github containing the above policy - that file will then be referenced from an AZ CLI command in order to create the policy in Azure.
 
-**1)** Using the AZ CLI, enter the following command (make sure you are working in the directory where the JSON file exists on your computer):
+**1)** Using the AZ CLI, enter the following command:
 
 <pre lang="...">
  az policy definition create --name EnforceNaming --display-name EnforceNamingConvention --rules https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/naming-policy.json
 </pre>
 
-**3)** Assign the policy to the VDC-Hub resource group using the following AZ CLI command:
+**2)** Assign the policy to the VDC-Hub resource group using the following AZ CLI command:
 
 <pre lang="...">
 az policy assignment create --policy EnforceNaming -g VDC-Hub --name EnforceNaming
 </pre>
 
-**4)** In the VDC-Hub resource group, create a new virtual network named "test-net" using default parameters. You should receive a validation error as the name does not meet the required convention, as specified in the resource policy.
+**3)** In the VDC-Hub resource group, create a new virtual network named "test-net" using default parameters. You should receive a validation error as the name does not meet the required convention, as specified in the resource policy.
 
-**5)** Attempt to create the virtual network again, but this time name it "VDC-testnet". This attempt should succeed as the name matches the convention.
+**4)** Attempt to create the virtual network again, but this time name it "VDC-testnet". This attempt should succeed as the name matches the convention.
 
-**6)** Remove the VDC-Test virtual network from the resource group.
+**5)** Remove the VDC-Test virtual network from the resource group.
 
-**7)** Unassign and remove the naming convention policy using the following commands:
+**6)** Unassign and remove the naming convention policy using the following commands:
 
 <pre lang="...">
 az policy assignment delete -g VDC-Hub --name EnforceNaming
