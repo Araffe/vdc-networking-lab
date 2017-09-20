@@ -543,19 +543,16 @@ This policy states that we must name our resources with the 'VDC-' prefix.
 
 In this exercise, we will create a file with this JSON information - that file will then be referenced from an AZ CLI command in order to create the policy in Azure.
 
-**1)** Create a file containing the JSON code shown above and save it on your computer as "naming-policy.json".
-
-**2)** Using the AZ CLI, enter the following command (make sure you are working in the directory where the JSON file exists on your computer):
+**1)** Using the AZ CLI, enter the following command (make sure you are working in the directory where the JSON file exists on your computer):
 
 <pre lang="...">
-az policy definition create --name EnforceNaming --display-name EnforceNamingConvention --rules naming-policy.json
+ az policy definition create --name EnforceNaming --display-name EnforceNamingConvention --rules https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/naming-policy.json
 </pre>
 
-**3)** Assign the policy to the VDC-Hub resource group using the following Powershell code:
+**3)** Assign the policy to the VDC-Hub resource group using the following AZ CLI command:
 
 <pre lang="...">
-$rg = Get-AzureRmResourceGroup -Name "VDC-Hub"
-New-AzureRMPolicyAssignment -Name EnforceNaming -Scope $rg.ResourceId -PolicyDefinition $definition
+az policy assignment create --policy EnforceNaming -g VDC-Hub --name EnforceNaming
 </pre>
 
 **4)** In the VDC-Hub resource group, create a new virtual network named "test-net" using default parameters. You should receive a validation error as the name does not meet the required convention, as specified in the resource policy.
@@ -564,11 +561,11 @@ New-AzureRMPolicyAssignment -Name EnforceNaming -Scope $rg.ResourceId -PolicyDef
 
 **6)** Remove the VDC-Test virtual network from the resource group.
 
-**7)** Unassign and remove the naming convention policy using the following Powershell code:
+**7)** Unassign and remove the naming convention policy using the following commands:
 
 <pre lang="...">
-Remove-AzureRmPolicyAssignment -Name EnforceNaming -scope $rg.ResourceId
-Remove-AzureRmPolicyDefinition -Name EnforceNamingConvention
+az policy assignment delete -g VDC-Hub --name EnforceNaming
+az policy definition delete --name EnforceNaming
 </pre>
 
 # Lab 4: Monitor the VDC Environment <a name="monitor"></a>
