@@ -178,15 +178,15 @@ Now that you are familiar with the overall architecture, let's move on to the ne
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
-**1)** Using the Azure portal, navigate to the *VDC-Hub* resource group and find the virtual network gateway named 'Hub_GW1'. Select 'Connections'.
+**1)** Using the Azure portal, click on 'More Services' on the bottom left of the screen and then search for and select 'Virtual Network Gateways'. Click on the virtual network gateway named 'Hub_GW1'. Select 'Connections'.
 
 **2)** Add a connection and name it 'Hub2OnPrem'.
 
-**3)** Choose 'OnPrem_GW' as the second gateway.
+**3)** Choose 'OnPrem_GW1' as the second gateway.
 
 **4)** Use 'M1crosoft123' as the shared key. Select 'OK' to complete the connection.
 
-**5)** Repeat the process for the other VPN gateway under the resource group *VDC-OnPrem*, but reverse the first and second gateways (name the connection 'OnPrem2Hub')
+**5)** Repeat the process for the other VPN gateway (OnPrem_GW1), but reverse the first and second gateways when creating the connection (name the connection 'OnPrem2Hub').
 
 **6)** Under the resource group *VDC-Hub* navigate back to the *OnPrem_GW1* virtual network gateway resource and then click 'Connections'. You should see a successful VPN connection between the OnPrem and Hub VPN gateways.
 
@@ -277,7 +277,7 @@ This step should succeed, which proves connectivity between the On Premises and 
 
 **Figure 6:** SSH from OnPrem_VM to vdc-csr-1
 
-**8)** Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
+**8)** Exit the SSH session to the CSR1000V. Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
 
 <pre lang="...">
 az network nic ip-config list --resource-group VDC-Spoke1 --nic-name Spoke1-VM1-nic -o table
@@ -288,7 +288,7 @@ The second command is more complicated, using a JMESPATH query to customise the 
 
 The VM's IP address is expected to be 10.1.1.5 or 10.1.1.6 depending on the order in which the VM builds completed.
 
-**9)** From the same VM, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
+**9)** While still logged in to OnPrem_VM, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
@@ -541,15 +541,14 @@ In this example, we'll create a policy that enforces a specific naming conventio
 
 This policy states that we must name our resources with the 'VDC-' prefix.
 
-In this exercise, we will create a file with this JSON information - that file will then be referenced from a Powershell script in order to create the policy in Azure.
+In this exercise, we will create a file with this JSON information - that file will then be referenced from an AZ CLI command in order to create the policy in Azure.
 
 **1)** Create a file containing the JSON code shown above and save it on your computer as "naming-policy.json".
 
-**2)** Open a Powershell window on your computer. Enter the following code to create the policy (make sure you are working in the directory where the JSON file exists on your computer):
+**2)** Using the AZ CLI, enter the following command (make sure you are working in the directory where the JSON file exists on your computer):
 
 <pre lang="...">
-$NamingPolicy = "naming-policy.json"
-New-AzureRmPolicyDefinition -name "EnforceNamingConvention" -DisplayName "EnforceNamingConvention" -Policy $NamingPolicy -Description "Policy to enforce naming convention"
+az policy definition create --name EnforceNaming --display-name EnforceNamingConvention --rules naming-policy.json
 </pre>
 
 **3)** Assign the policy to the VDC-Hub resource group using the following Powershell code:
