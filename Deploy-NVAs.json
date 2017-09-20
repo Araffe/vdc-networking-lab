@@ -26,7 +26,7 @@
     "variables": {
         "imagePublisher": "cisco",
         "imageOffer": "cisco-csr-1000v",
-        "imageSKU": "csr-azure-byol",
+        "imageSKU": "16_6",
         "storageAccountName": "[concat('vhds', uniqueString(resourceGroup().id))]",
         "publicIPAddressName": "csr1-PIP",
         "dnsPrefix": "[concat('csr-', uniqueString(resourceGroup().id))]",
