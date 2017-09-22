@@ -447,24 +447,6 @@
             "dependsOn": [
                 "onPremVnet"
             ]
-        },
-        {
-            "comments": "Create Cisco CSR router in Hub VNet",
-            "name": "createNVAs",
-            "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('nvaRG')]",
-            "apiVersion": "2017-05-10",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nvaTemplateURL')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": "[variables('nvaTemplate')]"
-            },
-            "dependsOn": [
-                "hubVnet"
-            ]
         }
     ]
 }
