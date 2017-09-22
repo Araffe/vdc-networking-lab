@@ -65,8 +65,6 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 - A valid subscription to Azure. If you don't currently have a subscription, consider setting up a free trial (https://azure.microsoft.com/en-gb/free/)
 - Access to the Azure CLI 2.0. You can achieve this in one of two ways: either by installing the CLI on the Windows 10 Bash shell (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), or by using the built-in Cloud Shell in the Azure portal - you can access this by clicking on the ">_" symbol in the top right corner of the portal.
 
-**Important: Deploying a third party virtual appliance (such as the Cisco CSR router we will use in this lab) programmatically is not possible until you have accepted the legal agreement. At the time of writing, the only way to do this is to create the virtual appliance through the Azure portal and subsequently delete it. You *must* do this first before attempting to deploy the lab environment through the ARM templates. To do this, follow these steps:**
-
 **1)** Using the Azure portal, click on the 'Add' button on the top left of the screen. Search for 'Resource Group' and then select 'Create'. Name the resource group 'NVA-Legal'.
 
 **2)** Click the 'Add' button again, but this time search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 2 NICs' and then select create.
@@ -89,7 +87,7 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 
 **Important: The initial lab setup using ARM templates takes around 45 minutes - please initiate this process as soon as possible to avoid a delay in starting the lab.**
 
-*All usernames and passwords for virtual machines (including Cisco CSR routers) are set to labuser / M1crosoft123*
+*All usernames and passwords for virtual machines are set to labuser / M1crosoft123*
 
 Perform the following steps to initialise the lab environment:
 
@@ -102,23 +100,13 @@ To sign in, use a web browser to open the page https://aka.ms/devicelogin and en
 
 The above command will provide a code as output. Open a browser and navigate to aka.ms/devicelogin to complete the login process.
 
-**2)** Use the Azure CLI to create five resource groups: *VDC-Hub*, *VDC-Spoke1*, *VDC-Spoke2*, *VDC-OnPrem* and *VDC-NVA* . Note that the resource groups *must* be named exactly as shown here to ensure that the ARM templates deploy correctly. Use the following CLI commands to achieve this:
-
-<pre lang="...">
-az group create -l westeurope -n VDC-Hub
-az group create -l westeurope -n VDC-Spoke1
-az group create -l westeurope -n VDC-Spoke2
-az group create -l westeurope -n VDC-OnPrem
-az group create -l westeurope -n VDC-NVA
-</pre>
-
-Alternatively, call CLI 2.0 from within a Bash loop, as follows:
+**2)** Use the Azure CLI to create five resource groups: *VDC-Hub*, *VDC-Spoke1*, *VDC-Spoke2*, *VDC-OnPrem* and *VDC-NVA* . Note that the resource groups *must* be named exactly as shown here to ensure that the ARM templates deploy correctly. Use the following CLI command to achieve this:
 
 <pre lang="...">
 for rg in Hub Spoke1 Spoke2 OnPrem NVA; do az group create -l westeurope -n VDC-$rg; done
 </pre>
 
-**3)** Once the resource groups have been deployed, you can deploy the lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets, VPN gateways and third party (Cisco) network virtual appliances (NVAs). The templates also deploy a simple Node.js application on the spoke virtual machines. Use the following CLI command to deploy the template:
+**3)** Once the resource groups have been deployed, you can deploy the main lab environment into these using a set of pre-defined ARM templates. The templates are available at https://github.com/Araffe/vdc-networking-lab if you wish to learn more about how the lab is defined. Essentially, a single master template (*VDC-Networking-Master.json*) is used to call a number of other templates, which in turn complete the deployment of virtual networks, virtual machines, load balancers, availability sets and VPN gateways. The templates also deploy a simple Node.js application on the spoke virtual machines. Use the following CLI command to deploy the template:
 
 <pre lang="...">
 az group deployment create --name VDC-Create -g VDC-Hub --template-uri https://raw.githubusercontent.com/Araffe/vdc-networking-lab/master/VDC-Networking-Master.json
@@ -136,7 +124,31 @@ Hub_GW1            2017-08-07T08:27:42.052311+00:00  Succeeded
 VDC-Create         2017-08-07T08:30:02.786296+00:00  Succeeded
 </pre>
 
-Once the template deployment has succeeded, you can proceed to the next sections of the lab.
+Once the template deployment has succeeded, you can proceed to the deployment of the Cisco CSR1000V, as follows:
+
+**1)** Using the Azure portal, navigate to the 'VDC-NVA' resource group. Click on the 'Add' button at the top of the screen and enter 'Cisco CSR' in the search box. Press enter.
+
+**2)** Select the option entitled 'Cisco CSR 1000v - XE 16.6 Deployment with 2 NICs' and then select create.
+
+**3)** Name the virtual machine 'vdc-csr-1' and use the username and password *labuser / M1crosoft123*. Make sure the 'VDC-NVA' resource group is selected and West Europe is the location.
+
+**4)** In the next step, select 'storage account' and create a storage account with a unique name (you will receive an error if the name is not unique). Leave the storage as 'locally redundant'.
+
+**5)** Select 'Public IP address' and call the IP address 'csr-pip'
+
+**6)** Assign a unique DNS label (you will receive an error if the name is not unique).
+
+**7)** Click on 'Virtual Network' and then select 'Hub_VNet'
+
+**8)** Select 'Subnets' and choose 'Hub_VNet-Subnet1' as the first subnet, with 'Hub\_Vnet-Subnet2' as the second subnet.
+
+**9)** Select 'OK' and check the 'purchase' button until the virtual appliance starts to deploy. Wait for the deployment to finish.
+
+**10)** Once the deployment has completed, navigate again to the VDC-NVA resource group and click on the Network Security Group named 'vdc-csr-1-SSH-SecurityGroup'.
+
+**11)** Click on 'Network Interfaces' and then click on the three dots on the right side of the interface. Select 'Dissociate'
+
+You are now ready to proceed to the next sections of the lab.
 
 # Lab 1: Explore VDC Environment <a name="explore"></a>
 
@@ -167,8 +179,6 @@ Note that each of the virtual networks resides in its own Azure resource group. 
 **4)** Under the load balancer, navigate to 'Load Balancing Rules'. Here, you will see that we have a single rule configured (*DemoAppRule*) that maps incoming HTTP requests to port 3000 on the backend (our simple Node.js application listens on port 3000).
 
 **Note:** Two types of load balancer are available in Azure - either external or internal. In our case, we have an internal load balancer deployed; that is, the load balancer has only a private IP address - in other words, it is not accessible from the Internet.
-
-**5)** Navigate to the *VDC-NVA* resource group. Under this resource group, you will see that a single network virtual appliance - a Cisco CSR1000V - has been deployed with two NICs, a storage account, a public IP address and a Network Security Group. Deployment of an NVA requires a new empty resource group, hence the reason for the additional group here.
 
 Now that you are familiar with the overall architecture, let's move on to the next lab where you will start to add some additional configuration.
 
@@ -216,15 +226,15 @@ One of the requirements of many enterprise organisations is to provide a secure 
 
 In our VDC environment, we are using Cisco CSR1000V routers in the Hub virtual network - CSR stands for *Cloud Services Router* and is a virtualised Cisco router running IOS-XE software. The CSR1000V is a fully featured Cisco router that supports most routing functionality, such as OSPF and BGP routing, IPSec VPNs and Zone Based Firewalls.
 
-The ARM templates used to deploy our VDC environment provisioned the CSR1000V router in the Hub virtual network, however it must now be configured in order to route traffic. Follow the steps in this section to configure the CSR1000V.
+In the initial lab seup, you provisioned the CSR1000V router in the Hub virtual network, however it must now be configured in order to route traffic. Follow the steps in this section to configure the CSR1000V.
 
-**1)** To log on to the CSR1000V, you'll need to obtain the public IP address assigned to it. You can obtain this using the Azure portal (navigate to the *VDC-NVA* resource group and inspect the object named 'csr1-pip'). Alternatively, you can use the Azure CLI to obtain the public IP address, as follows:
+**1)** To log on to the CSR1000V, you'll need to obtain the public IP address assigned to it. You can obtain this using the Azure portal (navigate to the *VDC-NVA* resource group and inspect the object named 'csr-pip'). Alternatively, you can use the Azure CLI to obtain the public IP address, as follows:
 
 <pre lang="...">
 <b>az network public-ip list -g VDC-NVA -o table</b>
   IpAddress      Location     Name     ProvisioningState    PublicIpAllocationMethod    ResourceGroup
   ------------  -----------  --------  ------------------  ------------------------     ---------------
- 40.68.197.125  westeurope   csr1-PIP   Succeeded           Dynamic                      VDC-NVA
+ 40.68.197.125  westeurope   csr-PIP   Succeeded           Dynamic                      VDC-NVA
  </pre>
  
 **2)** Now that you have the public IP address, SSH to the CSR1000V VM using your favourite terminal emulator (e.g. Putty or similar). The username and password for the CSR are *labuser / M1crosoft123*.
@@ -256,8 +266,6 @@ Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet1       10.101.1.4      YES DHCP   up                    up
 GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
 </pre>
-
-**Note:** At this point, you may be wondering why we are using DHCP to configure router interfaces (given that other devices use the interfaces to route to and they therefore must be consistent). The answer is that we have configured static addresses in Azure (essentially DHCP reservations) to ensure that the network interfaces will always receive a statically configured IP address.
 
 **6)** Find the public IP address of the virtual machine named *OnPrem_VM* using the following command:
 
