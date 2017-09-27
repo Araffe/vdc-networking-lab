@@ -62,26 +62,8 @@ More information on VDCs can be found at the following link:
 
 Before proceeding with this lab, please make sure you have fulfilled all of the following prerequisites:
 
-- A valid subscription to Azure. If you don't currently have a subscription, consider setting up a free trial (https://azure.microsoft.com/en-gb/free/)
+- A valid subscription to Azure. If you don't currently have a subscription, consider setting up a free trial (https://azure.microsoft.com/en-gb/free/). Please note however that some trial accounts have been found to have limits on the number of compute cores available - if this is the case, it may not be possible to create the virtual machines required for this lab (6 VMs).
 - Access to the Azure CLI 2.0. You can achieve this in one of two ways: either by installing the CLI on the Windows 10 Bash shell (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), or by using the built-in Cloud Shell in the Azure portal - you can access this by clicking on the ">_" symbol in the top right corner of the portal.
-
-**1)** Using the Azure portal, click on the 'Add' button on the top left of the screen. Search for 'Resource Group' and then select 'Create'. Name the resource group 'NVA-Legal'.
-
-**2)** Click the 'Add' button again, but this time search for 'Cisco' - select the option entitled 'Cisco CSR 1000v Deployment with 2 NICs' and then select create.
-
-**3)** Name the virtual machine 'NVA-Legal' and use the username and password *labuser / M1crosoft123*. Select the resource group you created in step 1 (NVA-Legal).
-
-**4)** In the next step, select 'storage account' and create a storage account with a unique name (you will receive an error if the name is not unique).
-
-**5)** Select 'Public IP' and give the IP address any name (e.g. 'test').
-
-**6)** Assign a unique DNS label (you will receive an error if the name is not unique).
-
-**7)** Click on 'subnets' and accept the default options.
-
-**8)** Select 'OK' until the virtual appliance starts to deploy. Wait for the deployment to finish.
-
-**9)** When the virtual appliance deployment has completed, delete the entire 'NVA-Legal' resource group by navigating to the resource group overview and selecting 'delete'.
 
 # Initial Lab Setup <a name="setup"></a>
 
