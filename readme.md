@@ -558,7 +558,7 @@ az policy assignment delete -g VDC-Hub --name EnforceNaming
 az policy definition delete --name EnforceNaming
 </pre>
 
-**Bonus Section: Use Azure Policy to Identity Non-Compliant Resources**
+**Bonus Section: Use Azure Policy to Identify Non-Compliant Resources**
 
 _Note that currently (October 2017), the functionality referenced in this section is in Limited Preview, therefore it must be explicitly enabled on your subscription before it can be used. To do this, browse to https://aka.ms/getpolicy and click on 'sign up'. Select your subscription and then 'register'._
 
@@ -597,6 +597,10 @@ Azure Policy is a feature that expands upon the functionality explored in this s
 ![Azure Policy - Compliance](https://github.com/Araffe/vdc-networking-lab/blob/master/images/PolicyCompliance.jpg "Azure Policy - Compliance")
 
 **Figure 15:** Azure Policy - Compliance View
+
+**7)** Under the 'Assignments' page, click on the '...' on the right hand side of the assignment and select 'Delete Assignment'.
+
+**8)** Under the 'Definitions' page, click on 'Policy Definitions' and delete the 'compliance-test' definition we created earlier.
 
 # Lab 4: Monitor the VDC Environment <a name="monitor"></a>
 
