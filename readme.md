@@ -659,7 +659,7 @@ ssh labuser@10.1.1.5
 
 ![NSG Log Download](https://github.com/Araffe/vdc-networking-lab/blob/master/images/NSGLogs.jpg "NSG Log Download")
 
-**Figure 20:** NSG FLow Log Download
+**Figure 20:** NSG Flow Log Download
 
 **6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 80 from our OnPrem_VM1 machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
 
@@ -799,7 +799,8 @@ az ad group create --display-name Ops --mail-nickname Ops
 <b>az ad user list</b>
 </pre>
 
-The following is an example output from the previous command (do not use these object IDs - use your own!!).
+The following is an example output from the previous command (do not use these object IDs - use your own!!):
+<pre lang="...">
 [
   {
     "displayName": "Bob",
