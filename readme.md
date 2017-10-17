@@ -196,9 +196,9 @@ At this point, we can start to verify the connectivity we have set up. One of th
 
 Figure 5 shows a diagram explaining what we see when we view the effective routes of OnPrem_VM.
 
-![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/images/EffectiveRoutes2.jpg "Routing from OnPrem_VM")
+![Routing from OnPrem_VM](https://github.com/Araffe/vdc-networking-lab/blob/master/images/EffectiveRoutes2.jpg "Routing from OnPrem_VM1")
 
-**Figure 5:** Routing from OnPrem_VM
+**Figure 5:** Routing from OnPrem_VM1
 
 Next, let's move on to configuring our Cisco Network Virtual Appliances.
 
@@ -219,7 +219,7 @@ In the initial lab setup, you provisioned the CSR1000V router in the Hub virtual
  40.68.197.125  westeurope   csr-PIP   Succeeded           Dynamic                      VDC-NVA
  </pre>
  
-**2)** Now that you have the public IP address, SSH to the CSR1000V VM using your favourite terminal emulator (e.g. Putty or similar). The username and password for the CSR are *labuser / M1crosoft123*.
+**2)** Now that you have the public IP address, SSH to the CSR1000V VM from within the Cloud Shell using 'ssh labuser@_public-ip_'. The username and password for the CSR are *labuser / M1crosoft123*.
 
 **3)** Enter configuration mode on the CSR:
 
@@ -249,13 +249,13 @@ GigabitEthernet1       10.101.1.4      YES DHCP   up                    up
 GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
 </pre>
 
-**6)** Find the public IP address of the virtual machine named *OnPrem_VM* using the following command:
+**6)** Find the public IP address of the virtual machine named *OnPrem_VM1* using the following command:
 
 <pre lang="...">
 az network public-ip list -g VDC-OnPrem -o table
 </pre>
 
-**7)** SSH to the public IP of OnPrem_VM. From within the VM, attempt to connect to the private IP address of one of the CSR1000V interfaces (10.101.1.4):
+**7)** SSH to the public IP of OnPrem_VM1. From within the VM, attempt to connect to the private IP address of one of the CSR1000V interfaces (10.101.1.4):
 
 <pre lang="...">
 ssh labuser@10.101.1.4
@@ -265,7 +265,7 @@ This step should succeed, which proves connectivity between the On Premises and 
 
 ![SSH to NVA](https://github.com/Araffe/vdc-networking-lab/blob/master/images/SSHtoNVA.jpg "SSH to NVA")
 
-**Figure 6:** SSH from OnPrem_VM to vdc-csr-1
+**Figure 6:** SSH from OnPrem_VM1 to vdc-csr-1
 
 **8)** Exit the SSH session to the CSR1000V. Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
 
@@ -278,7 +278,7 @@ The second command is more complicated, using a JMESPATH query to customise the 
 
 The VM's IP address is expected to be 10.1.1.5 or 10.1.1.6 depending on the order in which the VM builds completed.
 
-**9)** While still logged in to OnPrem_VM, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
+**9)** While still logged in to OnPrem_VM1, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
@@ -288,7 +288,7 @@ This attempt will fail - the reason for this is that we do not yet have the corr
 
 ## 2.3: Configure User Defined Routes <a name="udr"></a>
 
-In this section, we will configured a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
+In this section, we will configure a number of *User Defined Routes*. A UDR in Azure is a routing table that you as the user define, potentially overriding the default routing that Azure sets up for you. UDRs are generally required any time a Network Virtual Appliance (NVA) is deployed, such as the Cisco CSR router we are using in our lab. The goal of this exercise is to allow traffic to flow from VMs residing in the Spoke VNets, to the VM in the On Premises VNet. This traffic will flow through the Cisco CSR router in the Hub VNet. The diagram in figure 7 shows what we are trying to achieve in this section.
 
 ![User Defined Routes](https://github.com/Araffe/vdc-networking-lab/blob/master/images/UDR.jpg "User Defined Routes")
 
@@ -360,7 +360,7 @@ In this section, we'll perform some simple tests to validate connectivity betwee
 
 **1)** SSH into the virtual machine named *OnPrem-VM1* as you did earlier.
 
-**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (e.g. with an IP address of 10.1.1.5):
+**2)** From within this VM, attempt to SSH to the first virtual machine inside the Spoke 1 virtual network (e.g. with an IP address of 10.1.1.5) - this will fail:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
@@ -380,7 +380,7 @@ It turns out that there is an additional setting we must configure on the VNet p
 
 **5)** Configure the Spoke 2 VNet peering with 'Use Remote Network Gateway' and then attempt to connect to one of the virtual machines in Spoke 2 (e.g. 10.2.1.5). This connection should also now succeed.
 
-**6)** Still from the OnPrem_VM machine, use the curl command to make an HTTP request to the load balancer private IP address in Spoke1. Note that the IP address *should* be 10.1.1.4, however you may need to verify this in the portal or CLI:
+**6)** Still from the OnPrem_VM1 machine, use the curl command to make an HTTP request to the load balancer private IP address in Spoke1. Note that the IP address *should* be 10.1.1.4, however you may need to verify this in the portal or CLI:
 
 <pre lang="...">
 curl http://10.1.1.4
@@ -648,7 +648,7 @@ az storage account create --name storage-account-name -g VDC-Hub --sku Standard_
 
 **Figure 19:** NSG Flow Log Settings
 
-**4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 (through the load balancer) and attempt to SSH to the same VM (this will fail):
+**4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM1 virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 (through the load balancer) and attempt to SSH to the same VM (this will fail):
 
 <pre lang="...">
 curl http://10.1.1.4
@@ -661,7 +661,7 @@ ssh labuser@10.1.1.5
 
 **Figure 20:** NSG FLow Log Download
 
-**6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 80 from our OnPrem_VM machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
+**6)** Open the PT1H.json file in an editor on your local machine (Visual Studio Code is a good choice - available as a free download from https://code.visualstudio.com/). The file should show a number of flow entries which can be inspected. Let's start by looking for an entry for TCP port 80 from our OnPrem_VM1 machine to the Spoke1 load balancer IP address. You can search for the IP address '10.102.1.4' to see entries associated with OnPrem\_VM1.
 
 Here is an example of a relevant JSON entry:
 
@@ -796,7 +796,10 @@ az ad group create --display-name Ops --mail-nickname Ops
 **4)** In order to add users to groups using the CLI, you will need the object ID of each user. To get these IDs, use the following command - make a note of the object IDs associated with each user:
 
 <pre lang="...">
-<b>az ad user list></b>
+<b>az ad user list</b>
+</pre>
+
+The following is an example output from the previous command (do not use these object IDs - use your own!!).
 [
   {
     "displayName": "Bob",
