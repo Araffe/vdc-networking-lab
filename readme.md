@@ -116,7 +116,7 @@ Once the template deployment has succeeded, you can proceed to the deployment of
 
 **4)** In the next step, select 'storage account' and create a storage account with a unique name (you will receive an error if the name is not unique). Leave the storage as 'locally redundant'.
 
-**5)** Select 'Public IP address' and call the IP address 'csr-pip'
+**5)** Select 'Public IP address' and call the IP address 'csr-pip'. Use the default options (Basic SKU and Dynamic Assignment).
 
 **6)** Assign a unique DNS label (you will receive an error if the name is not unique).
 
@@ -213,10 +213,13 @@ In the initial lab setup, you provisioned the CSR1000V router in the Hub virtual
 **1)** To log on to the CSR1000V, you'll need to obtain the public IP address assigned to it. You can obtain this using the Azure portal (navigate to the *VDC-NVA* resource group and inspect the object named 'csr-pip'). Alternatively, you can use the Azure CLI to obtain the public IP address, as follows:
 
 <pre lang="...">
-<b>az network public-ip list -g VDC-NVA -o table</b>
-  IpAddress      Location     Name     ProvisioningState    PublicIpAllocationMethod    ResourceGroup
-  ------------  -----------  --------  ------------------  ------------------------     ---------------
- 40.68.197.125  westeurope   csr-PIP   Succeeded           Dynamic                      VDC-NVA
+<b>az network public-ip list -g VDC-NVA --query [*].[name,ipAddress]</b>
+[
+  [
+    "csr-pip",
+    "52.142.215.217"
+  ]
+]
  </pre>
  
 **2)** Now that you have the public IP address, SSH to the CSR1000V VM from within the Cloud Shell using 'ssh labuser@_public-ip_'. The username and password for the CSR are *labuser / M1crosoft123*.
@@ -252,7 +255,7 @@ GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
 **6)** Find the public IP address of the virtual machine named *OnPrem_VM1* using the following command:
 
 <pre lang="...">
-az network public-ip list -g VDC-OnPrem -o table
+az network public-ip list -g VDC-OnPrem --query [*].[name,ipAddress]
 </pre>
 
 **7)** SSH to the public IP of OnPrem_VM1. From within the VM, attempt to connect to the private IP address of one of the CSR1000V interfaces (10.101.1.4):

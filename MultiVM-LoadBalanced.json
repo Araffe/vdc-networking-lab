@@ -186,7 +186,8 @@
       "name": "[concat(parameters('vmName'), copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'), copyIndex(1) ,'-nic')]"
+        "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'), copyIndex(1) ,'-nic')]",
+        "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
       ],
       "properties": {
         "hardwareProfile": {
