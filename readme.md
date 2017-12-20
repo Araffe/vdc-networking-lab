@@ -911,7 +911,7 @@ Well done, you made it to the end of the lab! We've covered a lot of ground in t
 
 # Useful References <a name="ref"></a>
 
-- **Azure Virtual Data Center White Paper:** https://docs.microsoft.com/en-us/azure/networking/networking-virtual-datacenter
+- **Azure Virtual Data Center White Paper:** https://azure.microsoft.com/mediahandler/files/resourcefiles/1ad643b8-73f7-43f6-b05a-8e160168f9df/Azure_Virtual_Datacenter.pdf
 
 - **Secure Network Designs:** https://docs.microsoft.com/en-us/azure/best-practices-network-security?toc=%2fazure%2fnetworking%2ftoc.json
 
