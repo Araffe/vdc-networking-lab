@@ -252,7 +252,7 @@ GigabitEthernet1       10.101.1.4      YES DHCP   up                    up
 GigabitEthernet2       10.101.2.4      YES DHCP   up                    up
 </pre>
 
-**6)** Find the public IP address of the virtual machine named *OnPrem_VM1* using the following command:
+**6)** Exit the SSH session to the Cisco CSR and then find the public IP address of the virtual machine named *OnPrem_VM1* using the following command:
 
 <pre lang="...">
 az network public-ip list -g VDC-OnPrem --query [*].[name,ipAddress]
@@ -270,7 +270,7 @@ This step should succeed, which proves connectivity between the On Premises and 
 
 **Figure 6:** SSH from OnPrem_VM1 to vdc-csr-1
 
-**8)** Exit the SSH session to the CSR1000V. Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
+**8)** Exit the SSH session to the CSR1000V and then exit the SSH session to the OnPrem virtual machine. Find the internal IP address of a virtual machine's NIC in VDC-Spoke1, either by using the portal or any of the following CLI 2.0 commands:
 
 <pre lang="...">
 az network nic ip-config list --resource-group VDC-Spoke1 --nic-name Spoke1-VM1-nic -o table
