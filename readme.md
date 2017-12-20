@@ -281,7 +281,7 @@ The second command is more complicated, using a JMESPATH query to customise the 
 
 The VM's IP address is expected to be 10.1.1.5 or 10.1.1.6 depending on the order in which the VM builds completed.
 
-**9)** While still logged in to OnPrem_VM1, attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
+**9)** Log back in to OnPrem_VM1, and then attempt to connect to the private IP address of the virtual machine within the Spoke 1 Vnet:
 
 <pre lang="...">
 ssh labuser@10.1.1.5
