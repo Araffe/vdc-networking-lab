@@ -635,7 +635,7 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 Network Security Group (NSG) Flow Logs are a feature of Network Watcher that allows you to view information about traffic flowing through a NSG. The logs are written in JSON format and are stored in an Azure storage account that you must designate. In this section, we will enable flow logging for the NSG we configured in the earlier lab and inspect the results.
 
-**Important: Some subscription types (e.g. Azure Passes) do not have the necessary resource provider enabled to use NSG Flow Logs. Before attempting this section of the lab, enable the resource provider by entering the following Azure CLI command**
+**Important: Some subscription types (e.g. Azure Passes) do not have the necessary resource provider enabled to use NSG Flow Logs. Before attempting this section of the lab, enable the resource provider by entering the following Azure CLI command. It may take around 10 - 15 minutes to complete the registration.**
 
 <pre lang="...">
 az provider register --namespace Microsoft.Insights
