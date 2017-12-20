@@ -502,17 +502,15 @@ Azure resource policies are used to place restrictions on what actions can be ta
 - Display Name: *Allow Network*
 - ID: *Allow-Network*
 
-**6)** Return to the 'Overview' page for the VDC-Hub resource group and click on 'Add'.
+**6)** Use the Azure Cloud Shell to attempt to create a virtual machine using the following commands:
 
-**7)** Type 'Ubuntu' into the search box and then select 'Ubuntu Server 16.04 LTS'. Click the 'Create button'.
+<pre lang="...">
+az vm create -n policy-test-VM -g VDC-Hub --image UbuntuLTS
+</pre>
 
-**8)** Call the VM 'Ubuntu-Test', fill in the username / password details and make sure that 'VDC-Hub' is selected as the resource group.
+**7)** The validation should fail with a message stating "The template deployment failed because of policy violation. Please see details for more information."
 
-**9)** On the next pages, choose any VM size and accept the networking defaults.
-
-**10)** Proceed to the validation screen. The validation should fail with an error such as "The resource action 'Microsoft.Compute/virtualMachines/write' is disallowed by one or more policies". The VM creation has failed in the VDC-Hub resource group due to the resource policy we implemented in this section.
-
-**11)** Return to the 'Policies' page and remove the 'Allow-Network' resource policy assignment.
+**8)** Return to the 'Policies' page and remove the 'Allow-Network' resource policy assignment.
 
 If the built-in policies do not meet your requirements, it is also possible to create custom policies. The following steps walk you through custom policy creation.
 
@@ -636,6 +634,12 @@ Before we can use the tools in this section, we must first enable Network Watche
 ## 4.2: NSG Flow Logs <a name="nsgflowlogs"></a>
 
 Network Security Group (NSG) Flow Logs are a feature of Network Watcher that allows you to view information about traffic flowing through a NSG. The logs are written in JSON format and are stored in an Azure storage account that you must designate. In this section, we will enable flow logging for the NSG we configured in the earlier lab and inspect the results.
+
+**Important: Some subscription types (e.g. Azure Passes) do not have the necessary resource provider enabled to use NSG Flow Logs. Before attempting this section of the lab, enable the resource provider by entering the following Azure CLI command**
+
+<pre lang="...">
+az provider register --namespace Microsoft.Insights
+</pre>
 
 **1)** To begin with, we need to create a storage account to store the NSG flow logs. Use the following CLI to do this, substituting the storage account name for a unique name of your choice:
 
