@@ -505,7 +505,7 @@ Azure resource policies are used to place restrictions on what actions can be ta
 **6)** Use the Azure Cloud Shell to attempt to create a virtual machine using the following commands:
 
 <pre lang="...">
-az vm create -n policy-test-VM -g VDC-Hub --image UbuntuLTS
+az vm create -n policy-test-VM -g VDC-Hub --image UbuntuLTS --generate-ssh-keys
 </pre>
 
 **7)** The validation should fail with a message stating "The template deployment failed because of policy violation. Please see details for more information."
