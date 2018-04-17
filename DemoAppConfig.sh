@@ -3,7 +3,8 @@ sudo apt-get update
 
 # Install node.js & NPM
 sudo apt-get install npm -y
-sudo apt-get install nodejs-legacy -y
+curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash --
+sudo apt-get install -y nodejs
 
 # Clone Git repo for demo app
 sudo apt-get install git -y
