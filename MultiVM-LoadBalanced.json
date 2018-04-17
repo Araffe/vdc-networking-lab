@@ -202,7 +202,7 @@
           "imageReference": {
             "publisher": "canonical",
             "offer": "UbuntuServer",
-            "sku": "16.04.0-LTS",
+            "sku": "17.10",
             "version": "latest"
           },
           "osDisk": {
