@@ -898,11 +898,11 @@ Now that we have Azure AD groups assigned to resource groups with the appropriat
 To decommission the VDC lab, simply remove the resource groups using the following commands:
 
 <pre lang="...">
-az group delete --name VDC-Hub --no-wait
-az group delete --name VDC-NVA --no-wait
-az group delete --name VDC-Spoke1 --no-wait
-az group delete --name VDC-Spoke2 --no-wait
-az group delete --name VDC-OnPrem --no-wait
+az group delete --name VDC-Hub --no-wait -y
+az group delete --name VDC-NVA --no-wait -y
+az group delete --name VDC-Spoke1 --no-wait -y
+az group delete --name VDC-Spoke2 --no-wait -y
+az group delete --name VDC-OnPrem --no-wait -y
 </pre>
 
 # Conclusion <a name="conclusion"></a>
