@@ -601,9 +601,9 @@ In addition to the ability to define and assign resource policies, Azure Policy 
 
 **Figure 15:** Azure Policy - Compliance View
 
-**7)** Under the 'Assignments' page, click on the '...' on the right hand side of the assignment and select 'Delete Assignment'.
+**8)** Under the 'Assignments' page, click on the '...' on the right hand side of the assignment and select 'Delete Assignment'.
 
-**8)** Under the 'Definitions' page, click on 'Policy Definitions' and delete the 'compliance-test' definition we created earlier.
+**9)** Under the 'Definitions' page, click on 'Policy Definitions' and delete the 'compliance-test' definition we created earlier.
 
 # Lab 4: Monitor the VDC Environment <a name="monitor"></a>
 
@@ -654,7 +654,6 @@ az storage account create --name storage-account-name -g VDC-Hub --sku Standard_
 **3)** Click on the NSG and then in the settings screen, change the status to 'On'. Select the storage account you created in step 1 and change the retention to 5 days. Click 'Save'.
 
 ![NSG Flow Log Settings](https://github.com/Araffe/vdc-networking-lab/blob/master/images/FlowLogs1.jpg "NSG Flow Log Settings")
-
 **Figure 19:** NSG Flow Log Settings
 
 **4)** In order to view data from the NSG logs, we must initiate some traffic that will flow through the NSG. SSH to the OnPrem_VM1 virtual machine as described earlier in the lab. From here, use the curl command to view the demo app on Spoke1\_VM1 (through the load balancer) and attempt to SSH to the same VM (this will fail):
@@ -740,30 +739,30 @@ Azure Monitor is a tool that provides central monitoring of most Azure services,
 
 **7)** Expand the section named 'Define Alert Details'. Name the alert rule 'alert-cpu' and give it a suitable description. Click OK.
 
-**7)** Expand the section named 'Define Action Group'. Name the action group 'alert-email' (use this for the short name as well). Under 'Actions', use the same name and select 'Email/SMS/Push/Voice'. In the resulting dialog box, configure your own email address. Select OK.
+**8)** Expand the section named 'Define Action Group'. Name the action group 'alert-email' (use this for the short name as well). Under 'Actions', use the same name and select 'Email/SMS/Push/Voice'. In the resulting dialog box, configure your own email address. Select OK.
 
-**8)** On the main page, click 'Select Action Group' and select the group you have just configured.
+**9)** On the main page, click 'Select Action Group' and select the group you have just configured.
 
-**9)** SSH to your OnPrem_VM1 virtual machine and install the 'Stress' tool:
+**10)** SSH to your OnPrem_VM1 virtual machine and install the 'Stress' tool:
 
 <pre lang="...">
 sudo apt-get install stress
 </pre>
 
-**10)** Use the Stress program to hog the CPU:
+**11)** Use the Stress program to hog the CPU:
 
 <pre lang="...">
 stress -c 50
 stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
 </pre>
 
-**11)** After approximately 5 minutes, you should receive an email alerting you to the high CPU on your VM:
+**12)** After approximately 5 minutes, you should receive an email alerting you to the high CPU on your VM:
 
 ![Azure Monitor CPU Alert](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonAlert.jpg "Azure Monitor CPU Alert")
 
 **Figure 24:** Azure Monitor CPU Alert
 
-**12)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
+**13)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
 
 # Lab 5: Identity in the VDC Environment <a name="identity"></a>
 
