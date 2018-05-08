@@ -26,6 +26,8 @@
 
 - [3.3: Implementing Azure Resource Policies](#armpolicies)
 
+- [3.4: Monitor Compliance Using Azure Policy](#policycompliance)
+
 **[Lab 4: Monitor the VDC Environment](#monitor)**
 
 - [4.1: Enable Network Watcher](#netwatcher)
@@ -409,7 +411,7 @@ Our NSG will define two inbound rules - one for HTTP and another for TCP port 30
 
 **1)** In the Azure portal under the resource group VDC-Hub, click 'Add' and search for 'Network Security Group'. Create a new NSG named *Hub-NSG*.
 
-**2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule and then click the 'Advanced' button. Use the following parameters:
+**2)** Navigate to the newly created NSG and select it. Select 'Inbound Security Rules'. Click 'Add' to add a new rule. Use the following parameters:
 
 - Name: *Allow-http*
 - Priority: *100*
@@ -485,19 +487,19 @@ Azure resource policies are used to place restrictions on what actions can be ta
 
 **1)** In the Azure portal, navigate to the VDC-Hub resource group and then click on *Policies* in the menu.
 
-**2)** Click on the 'Policies' tab in the right hand pane to see a list of available built-in resource policies.
+**2)** Select *Definitions* and then *Policy Definitions* in the right hand pane.
 
-**3)** Select the policy entitled 'Allowed Resource Types' and then click on 'JSON'. This shows you the JSON policy document - this simple example takes a list of resource types and prevents the ability to create them.
+**3)** Scroll down to the policy entitled 'Allowed Resource Types', click the '...', select 'View Definition' and then click on 'JSON'. This shows you the JSON policy document - this simple example takes a list of resource types and prevents the ability to create them.
 
 ![Azure Resource Policy Example](https://github.com/Araffe/vdc-networking-lab/blob/master/images/armpolicies1.jpg "Azure Resource Policy Example")
 
 **Figure 14:** Example Resource Policy - Allowed Resource Types
 
-**4)** Switch back to the 'Assignments' tab in the right hand pane and click 'Add'.
+**4)** Click on 'Assignments' in the menu and then click 'Assign Policy'.
 
 **5)** Use the following details to create the policy:
 
-- Policy: *Allowed Resource Types*
+- Policy Definition: *Allowed Resource Types*
 - Allowed Resource Types: *Select all 'Microsoft.Network' resources*
 - Display Name: *Allow Network*
 - ID: *Allow-Network*
@@ -559,15 +561,15 @@ az policy assignment delete -g VDC-Hub --name EnforceNaming
 az policy definition delete --name EnforceNaming
 </pre>
 
-**Bonus Section: Use Azure Policy to Identify Non-Compliant Resources**
+## 3.4: Monitor Compliance Using Azure Policy <a name="policycompliance"></a>
 
-_Note that currently (October 2017), the functionality referenced in this section is in Limited Preview, therefore it must be explicitly enabled on your subscription before it can be used. To do this, browse to https://aka.ms/getpolicy and click on 'sign up'. Select your subscription and then 'register'._
+In addition to the ability to define and assign resource policies, Azure Policy allows you to identify existing resources within a subscription or resource that are not compliant against the configured policies. In this section, we will use Azure Policy to view non-compliant resources within the VDC-Hub resource group.
 
-Azure Policy is a feature that expands upon the functionality explored in this section. In addition to the ability to define and assign resource policies, Azure Policy allows you to identify existing resources within a subscription or resource that are not compliant against the configured policies. In this section, we will define a new resource policy and assign it to the VDC-Hub resource group - we will then use Azure Policy to view non-compliant resources within this group.
+**1)** In the 'Policies' section under VDC-Hub, click on 'Definitions' and then '+ Policy Definition'. Name the policy 'compliance-test' and select your subscription under 'Definition Location'.
 
-**1)** In Azure Policy, click on 'Definitions' and then '+ Policy Definition'. Name the policy 'compliance-test' and select your subscription under 'Definition Location'.
+**2)** Select 'Use existing' under the category section and select 'Compute'.
 
-**2)** Cut and paste the following JSON into the 'Policy Rule and Parameters' box and then click 'save':
+**3)** Cut and paste the following JSON into the 'Policy Rule and Parameters' box and then click 'save':
 
 <pre lang="...">
 {
@@ -585,15 +587,15 @@ Azure Policy is a feature that expands upon the functionality explored in this s
 }
 </pre>
 
-**3)** Click on 'Assignments' and then 'Assign Policy'. Under 'Policy', select the policy created in the last step (compliance-test). Name the assignment 'compliance-test'.
+**4)** Click on 'Assignments' and then 'Assign Policy'. Under 'Policy Definition', select the policy created in the last step (compliance-test). Name the assignment 'compliance-test'.
 
-**4)** Ensure the pricing tier is 'Standard' (compliance information is only available at the Standard tier).
+**5)** Ensure the pricing tier is 'Standard' (compliance information is only available at the Standard tier).
 
-**5)** Under 'Scope', select the 'VDC-Hub' resource group. Finally, click on 'Assign'.
+**6)** Under 'Scope', ensure that the 'VDC-Hub' resource group is selected. Finally, click on 'Assign'.
 
-**6)** Click on the 'Compliance' menu option - after some time, this screen should show the resources within the VDC-Hub resource group that are not compliant with the policy (all of them, as none match the name 'test-*').
+**7)** Click on the 'Compliance' menu option - after some time, this screen should show the resources within the VDC-Hub resource group that are not compliant with the policy (all of them, as none match the name 'test-*').
 
-**Note: it can take around 20 minutes for the compliance information to be updated.**
+**Note: it can take around 20 minutes or more for the compliance information to be updated, so you may wish to return to this section.**
 
 ![Azure Policy - Compliance](https://github.com/Araffe/vdc-networking-lab/blob/master/images/PolicyCompliance.jpg "Azure Policy - Compliance")
 
@@ -716,45 +718,52 @@ Another useful feature of Network Watcher is the ability to trace the next hop f
 
 Azure Monitor is a tool that provides central monitoring of most Azure services, designed to give you infrastructure level diagnostics about a service and the surrounding environment. In this section of the lab, we will use Azure Monitor to look at metrics on a resource and create an alert to receive an email when a CPU threshold is crossed.
 
-**1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selecting 'Monitor'. If it is not shown, select 'More Services' and search for it. The initial view is the Activity Log. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
+**1)** Start by using the Azure portal to navigate to the Azure Monitor view by expanding the left hand main menu and selecting 'Monitor'. If it is not shown, select 'More Services' and search for it. Select 'Activity Log' from the left hand menu. This shows a filterable view of all activity in your subscription - you can filter based on timespan, event severity, resource type and operation. Modify some of the filter fields in this screen to narrow down the search criteria.
 
 ![Azure Monitor Activity Log](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMon1.jpg "Azure Monitor Activity Log")
 
 **Figure 22:** Azure Monitor Activity Log
 
-**2)** In the Azure Monitor menu on the left, select 'Metrics'. At the top of the screen, select the 'VDC-OnPrem' resource group and then the 'OnPrem1_VM' virtual machine in the Resource drop-down menu. Under the 'Metrics' menu, select 'Host Percentage CPU' to view the CPU metrics for this VM.
+**2)** In the Azure Monitor menu on the left, select 'Metrics (Preview)'. In the 'resource' box at the top of the screen, search for 'onprem' and then select the 'OnPrem1_VM' virtual machine in the drop-down menu. Select 'host' as the sub-service and then 'Percentage CPU' as the metric.
 
 ![Azure Monitor CPU Metrics](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonCPU.jpg "Azure Monitor CPU Metrics")
 
 **Figure 23:** Azure Monitor CPU Metrics
 
-**3)** For all types of metric displayed, it is possible to configure alerts when a specific threshold is reached. In the CPU metric view, click on 'Add Metric Alert' at the top of the screen. Use the following parameters to configure the alerting rule:
+**3)** For all types of metric displayed, it is possible to configure alerts when a specific threshold is reached. Select 'Alerts' from the left hand menu and then click on 'New Alert Rule' at the top of the screen.
 
-- Name: *CPUAlert*
-- Threshold: *50%*
-- Period: *Over the last 5 minutes*
-- Email owners, contributors and readers: *Checked*
+**4)** Click on 'Select Target' and then choose your subscription. Select 'Virtual Machines' as the resource type and then choose 'OnPrem-VM1'.
 
-**4)** SSH to your OnPrem_VM1 virtual machine and install the 'Stress' tool:
+**5)** Click on 'Add Criteria' and then select 'Percentage CPU' as the signal type.
+
+**6)** Under 'Alert Logic', ensure the condition is 'Greater than' and set the threshold to 40%. Change the period to 'Over the last 1 minute'.
+
+**7)** Expand the section named 'Define Alert Details'. Name the alert rule 'alert-cpu' and give it a suitable description. Click OK.
+
+**7)** Expand the section named 'Define Action Group'. Name the action group 'alert-email' (use this for the short name as well). Under 'Actions', use the same name and select 'Email/SMS/Push/Voice'. In the resulting dialog box, configure your own email address. Select OK.
+
+**8)** On the main page, click 'Select Action Group' and select the group you have just configured.
+
+**9)** SSH to your OnPrem_VM1 virtual machine and install the 'Stress' tool:
 
 <pre lang="...">
 sudo apt-get install stress
 </pre>
 
-**5)** Use the Stress program to hog the CPU:
+**10)** Use the Stress program to hog the CPU:
 
 <pre lang="...">
 stress -c 50
 stress: info: [61727] dispatching hogs: 50 cpu, 0 io, 0 vm, 0 hdd
 </pre>
 
-**6)** After approximately 5 minutes, you should receive an email alerting you to the high CPU on your VM:
+**11)** After approximately 5 minutes, you should receive an email alerting you to the high CPU on your VM:
 
 ![Azure Monitor CPU Alert](https://github.com/Araffe/vdc-networking-lab/blob/master/images/AzMonAlert.jpg "Azure Monitor CPU Alert")
 
 **Figure 24:** Azure Monitor CPU Alert
 
-**7)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
+**12)** Stop the Stress program. After another few minutes you should receive another mail informing you that the CPU percentage has reduced.
 
 # Lab 5: Identity in the VDC Environment <a name="identity"></a>
 
