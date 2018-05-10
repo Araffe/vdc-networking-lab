@@ -589,13 +589,11 @@ In addition to the ability to define and assign resource policies, Azure Policy 
 
 **4)** Click on 'Assignments' and then 'Assign Policy'. Under 'Policy Definition', select the policy created in the last step (compliance-test). Name the assignment 'compliance-test'.
 
-**5)** Ensure the pricing tier is 'Standard' (compliance information is only available at the Standard tier).
+**5)** Under 'Scope', ensure that the 'VDC-Hub' resource group is selected. Finally, click on 'Assign'.
 
-**6)** Under 'Scope', ensure that the 'VDC-Hub' resource group is selected. Finally, click on 'Assign'.
+**6)** Click on the 'Compliance' menu option - after some time, this screen should show the resources within the VDC-Hub resource group that are not compliant with the policy (all of them, as none match the name 'test-*').
 
-**7)** Click on the 'Compliance' menu option - after some time, this screen should show the resources within the VDC-Hub resource group that are not compliant with the policy (all of them, as none match the name 'test-*').
-
-**Note: it can take around 20 minutes or more for the compliance information to be updated, so you may wish to return to this section.**
+**Note: it can take around 30 - 60 minutes for the compliance information to be updated, so you may wish to return to this section.**
 
 ![Azure Policy - Compliance](https://github.com/Araffe/vdc-networking-lab/blob/master/images/PolicyCompliance.jpg "Azure Policy - Compliance")
 
