@@ -10,7 +10,7 @@
 
 **[Lab 2: Configure the VDC Infrastructure](#configure)**
 
-- [2.1: Configure Site-to-Site VPN](#vpn)
+- [2.1: Configure VNet to VNet Connection](#vpn)
 
 - [2.2: Configure Cisco CSR1000V](#cisco)
 
@@ -168,13 +168,13 @@ Now that you are familiar with the overall architecture, let's move on to the ne
 
 # Lab 2: Configure the VDC Infrastructure <a name="configure"></a>
 
-## 2.1: Configure Site-to-Site VPN <a name="vpn"></a>
+## 2.1: Configure VNet to Vnet Connection <a name="vpn"></a>
 
 In our VDC environment, we have a hub virtual network (used as a central point for control and inspection of ingress / egress traffic between different zones) and a virtual network used to simulate an on-premises environment. In order to provide connectivity between the hub and on-premises, we will configure a site-to-site VPN. The VPN gateways required to achieve this have already been deployed, however they must be configured before traffic will flow. Follow the steps below to configure the site-to-site VPN connection.
 
 **1)** Using the Azure portal, click on 'More Services' on the bottom left of the screen and then search for and select 'Virtual Network Gateways'. Click on the virtual network gateway named 'Hub_GW1'. Select 'Connections'.
 
-**2)** Add a connection and name it 'Hub2OnPrem'.
+**2)** Add a connection and name it 'Hub2OnPrem'. Ensure the connection type is 'VNet-to-VNet'.
 
 **3)** Choose 'OnPrem_GW1' as the second gateway.
 
