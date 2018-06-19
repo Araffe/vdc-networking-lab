@@ -67,6 +67,12 @@ Before proceeding with this lab, please make sure you have fulfilled all of the 
 - A valid subscription to Azure. If you don't currently have a subscription, consider setting up a free trial (https://azure.microsoft.com/en-gb/free/). Please note however that some free trial accounts have been found to have limits on the number of compute cores available - if this is the case, it may not be possible to create the virtual machines required for this lab (6 VMs).
 - Access to the Azure CLI 2.0. You can achieve this in one of two ways: either by installing the CLI on the Windows 10 Bash shell (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli), or by using the built-in Cloud Shell in the Azure portal - you can access this by clicking on the ">_" symbol in the top right corner of the portal.
 
+**Some subscription types (e.g. Azure Passes) do not have the necessary resource provider enabled to use NSG Flow Logs. Before beginning the lab, enable the resource provider by entering the following Azure CLI command - this will save time later.**
+
+<pre lang="...">
+az provider register --namespace Microsoft.Insights
+</pre>
+
 # Initial Lab Setup <a name="setup"></a>
 
 **Important: The initial lab setup using ARM templates takes around 45 minutes - please initiate this process as soon as possible to avoid a delay in starting the lab.**
@@ -635,11 +641,6 @@ Before we can use the tools in this section, we must first enable Network Watche
 
 Network Security Group (NSG) Flow Logs are a feature of Network Watcher that allows you to view information about traffic flowing through a NSG. The logs are written in JSON format and are stored in an Azure storage account that you must designate. In this section, we will enable flow logging for the NSG we configured in the earlier lab and inspect the results.
 
-**Important: Some subscription types (e.g. Azure Passes) do not have the necessary resource provider enabled to use NSG Flow Logs. Before attempting this section of the lab, enable the resource provider by entering the following Azure CLI command. It may take around 10 - 15 minutes to complete the registration.**
-
-<pre lang="...">
-az provider register --namespace Microsoft.Insights
-</pre>
 
 **1)** To begin with, we need to create a storage account to store the NSG flow logs. Use the following CLI to do this, substituting the storage account name for a unique name of your choice:
 
